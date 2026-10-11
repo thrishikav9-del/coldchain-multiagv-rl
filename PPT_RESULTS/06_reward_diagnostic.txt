@@ -1,0 +1,13 @@
+﻿PHASE 4.2 REWARD-FREQUENCY DIAGNOSTIC
+Random Policy Test
+------------------
+Total Reward             = -1239.281
+Positive Reward Steps    = 50
+Pickups                  = 3
+Completed                = 1
+Best Single-Step Reward  = 68.427
+Interpretation:
+The environment reward mechanism is capable of producing
+positive rewards and successful pickup/completion events.
+Therefore, the main remaining problem is policy learning,
+not basic environment execution.

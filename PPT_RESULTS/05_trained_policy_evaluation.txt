@@ -1,0 +1,23 @@
+﻿PHASE 4.2 MULTI-EPISODE TRAINED POLICY TEST
+Episodes = 10
+Steps per episode = 200
+Episode 01 = -60.000
+Episode 02 = -60.000
+Episode 03 = -60.000
+Episode 04 = -60.000
+Episode 05 = -60.000
+Episode 06 = -60.000
+Episode 07 = -60.000
+Episode 08 = -60.000
+Episode 09 = -60.000
+Episode 10 = -60.000
+AVERAGE_REWARD = -60.0
+TOTAL_PICKUPS = 0
+TOTAL_COMPLETED = 0
+TOTAL_COLLISIONS = 0
+BEST_REWARD = -60.0
+INTERPRETATION:
+The trained policy runs without runtime or collision errors,
+but it currently learns a stationary/stay policy and does not
+successfully complete pickup tasks.
+Further reward/training-policy improvement is required.

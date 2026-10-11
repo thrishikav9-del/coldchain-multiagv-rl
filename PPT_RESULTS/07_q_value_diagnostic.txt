@@ -1,0 +1,14 @@
+﻿PHASE 4.2 Q-VALUE DIAGNOSTIC
+Joint Action Space = 125
+Top Q-values:
+1. ACTION=[1,1,1] Q=59.217079
+2. ACTION=[0,0,0] Q=58.908607
+3. ACTION=[1,0,1] Q=58.565010
+4. ACTION=[0,0,3] Q=58.357441
+5. ACTION=[0,3,0] Q=58.332214
+Important observation:
+The network assigns a high Q-value to [0,0,0] (stay).
+This explains why the trained policy repeatedly chooses
+the stay action during evaluation.
+This indicates that the current policy has not learned
+effective task completion behavior.

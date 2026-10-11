@@ -1,0 +1,9 @@
+﻿PHASE 4.2 ARCHITECTURE
+State features        = 18
+Number of AGVs         = 3
+Actions per AGV        = 5
+Joint action space     = 5^3 = 125
+DQN Architecture:
+18 -> 128 -> 128 -> 125
+Output:
+One Q-value for each of the 125 possible joint actions.

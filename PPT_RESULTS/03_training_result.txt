@@ -1,0 +1,8 @@
+﻿PHASE 4.2 TRAINING RESULT
+Training completed successfully.
+Model saved:
+models\dqn_model.pt
+Final Replay Size = 51878
+Final Epsilon = 0.222292
+Final Training Steps = 51815
+Training Status = COMPLETE
