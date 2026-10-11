@@ -1,0 +1,390 @@
+
+        if self.system is None:
+            raise RuntimeError(
+                "Environment must be reset before step()."
+            )
+
+        actions = np.asarray(
+            actions,
+            dtype=np.int64,
+        )
+
+        # ------------------------------------------------------
+        # Shape validation
+        # ------------------------------------------------------
+
+        if actions.shape != (self.num_agvs,):
+
+            raise ValueError(
+                f"Expected {self.num_agvs} actions, "
+                f"got shape {actions.shape}."
+            )
+
+        # ------------------------------------------------------
+        # Action validation
+        # ------------------------------------------------------
+
+        if np.any(actions < 0) or np.any(actions >= 5):
+
+            raise ValueError(
+                "Every action must be in the range 0..4."
+            )
+
+        self.current_step += 1
+
+        total_reward = 0.0
+
+        collision_count = 0
+        completed_count = 0
+        pickup_count = 0
+
+        # ======================================================
+        # CURRENT / PROPOSED POSITIONS
+        # ======================================================
+
+        current_positions = {}
+        proposed_positions = {}
+
+        for agv_id in range(
+            1,
+            self.num_agvs + 1,
+        ):
+
+            agv = self.system.agvs[agv_id]
+
+            action = int(
+                actions[agv_id - 1]
+            )
+
+            current_positions[agv_id] = agv.position
+
+            proposed_positions[agv_id] = (
+                self._get_target_position(
+                    agv,
+                    action,
+                )
+            )
+
+        # ======================================================
+        # COLLISION DETECTION
+        # ======================================================
+
+        collision_agvs = set()
+
+        position_to_agvs = {}
+
+        for agv_id, position in proposed_positions.items():
+
+            position_to_agvs.setdefault(
+                position,
+                [],
+            ).append(agv_id)
+
+        for (
+            position,
+            agv_ids_at_position,
+        ) in position_to_agvs.items():
+
+            if len(agv_ids_at_position) <= 1:
+                continue
+
+            active_agvs = [
+                agv_id
+                for agv_id in agv_ids_at_position
+                if (
+                    proposed_positions[agv_id]
+                    != current_positions[agv_id]
+                )
+            ]
+
+            if len(active_agvs) <= 1:
+                continue
+
+            collision_count += 1
+
+            collision_agvs.update(
+                active_agvs
+            )
+
+        # ======================================================
+        # SWAP COLLISION
+        # ======================================================
+
+        agv_ids = list(
+            current_positions.keys()
+        )
+
+        for i in range(len(agv_ids)):
+
+            agv_a = agv_ids[i]
+
+            for j in range(
+                i + 1,
+                len(agv_ids),
+            ):
+
+                agv_b = agv_ids[j]
+
+                is_swap = (
+                    proposed_positions[agv_a]
+                    == current_positions[agv_b]
+                    and
+                    proposed_positions[agv_b]
+                    == current_positions[agv_a]
+                    and
+                    proposed_positions[agv_a]
+                    != proposed_positions[agv_b]
+                )
+
+                if is_swap:
+
+                    collision_count += 1
+
+                    collision_agvs.add(agv_a)
+                    collision_agvs.add(agv_b)
+
+        # ======================================================
+        # EXECUTE MOVEMENTS
+        # ======================================================
+
+        for agv_id in range(
+            1,
+            self.num_agvs + 1,
+        ):
+
+            agv = self.system.agvs[agv_id]
+
+            action = int(
+                actions[agv_id - 1]
+            )
+
+            target = proposed_positions[agv_id]
+
+            risk = self.task_risk[agv_id]
+
+            # --------------------------------------------------
+            # STAY
+            # --------------------------------------------------
+
+            if action == 0:
+
+                total_reward -= 0.1
+
+                continue
+
+            # --------------------------------------------------
+            # COLLISION
+            # --------------------------------------------------
+
+            if agv_id in collision_agvs:
+    
+                # Collision penalty
+                total_reward -= 15.0
+
+                # Additional urgency-aware penalty
+                total_reward -= (
+                    5.0
+                    * risk["urgency_score"]
+                )
+
+                # Treat the conflicting action as a failed movement.
+                # The AGV remains at its current position, but the
+                # distance-progress component is not applied.
+                continue
+
+            # --------------------------------------------------
+            # Distance before movement
+            # --------------------------------------------------
+
+            old_distance = (
+                self._distance_to_task_target(
+                    agv
+                )
+            )
+
+            # --------------------------------------------------
+            # Movement
+            # --------------------------------------------------
+
+            moved = self.system.move_agv(
+                agv_id,
+                target,
+            )
+
+            # --------------------------------------------------
+            # Invalid movement
+            # --------------------------------------------------
+
+            if not moved:
+
+                total_reward -= 2.0
+
+                continue
+
+            # --------------------------------------------------
+            # Movement cost
+            # --------------------------------------------------
+
+            total_reward -= 0.2
+
+            # --------------------------------------------------
+            # Distance after movement
+            # --------------------------------------------------
+
+            new_distance = (
+                self._distance_to_task_target(
+                    agv
+                )
+            )
+
+            distance_improvement = (
+                old_distance
+                - new_distance
+            )
+
+            # --------------------------------------------------
+            # Progress reward
+            # --------------------------------------------------
+
+            total_reward += float(
+                distance_improvement
+            )
+
+            # --------------------------------------------------
+            # Urgency-aware progress
+            # --------------------------------------------------
+
+            if distance_improvement > 0:
+
+                total_reward += (
+                    0.5
+                    * risk["urgency_score"]
+                    * distance_improvement
+                )
+
+        # ======================================================
+        # TASK PROGRESSION
+        # ======================================================
+
+        for task in self.tasks:
+
+            if task.is_completed:
+                continue
+
+            agv_id = task.assigned_agv
+
+            if agv_id is None:
+                continue
+
+            if agv_id not in self.system.agvs:
+                continue
+
+            agv = self.system.agvs[agv_id]
+
+            risk = self.task_risk[agv_id]
+
+            # ==================================================
+            # PICKUP
+            # ==================================================
+
+            if (
+                task.status == "IN_PROGRESS"
+                and
+                agv.position == task.pickup
+            ):
+
+                task.pickup_completed()
+
+                agv.destination = task.delivery
+                agv.current_task = task.task_id
+                agv.status = "MOVING"
+
+                pickup_count += 1
+
+                # Base pickup reward
+                total_reward += 10.0
+
+                # Urgency bonus
+                total_reward += (
+                    5.0
+                    * risk["urgency_score"]
+                )
+
+                # High-risk bonus
+                if risk["priority"] == "HIGH":
+
+                    total_reward += 3.0
+
+            # ==================================================
+            # DELIVERY
+            # ==================================================
+
+            if (
+                task.status == "PICKED_UP"
+                and
+                agv.position == task.delivery
+            ):
+
+                task.complete()
+
+                agv.complete_task()
+
+                completed_count += 1
+
+                # Base delivery reward
+                total_reward += 20.0
+
+                # Urgency-aware delivery reward
+                total_reward += (
+                    10.0
+                    * risk["urgency_score"]
+                )
+
+                # High-risk delivery bonus
+                if risk["priority"] == "HIGH":
+
+                    total_reward += 5.0
+
+        # ======================================================
+        # STATISTICS
+        # ======================================================
+
+        self.last_collision_count = collision_count
+        self.last_completed_count = completed_count
+        self.last_pickup_count = pickup_count
+
+        # ======================================================
+        # TERMINATION
+        # ======================================================
+
+        terminated = bool(
+            self.system.all_tasks_completed()
+        )
+
+        truncated = bool(
+            self.current_step >= self.max_steps
+        )
+
+        observation = self._get_observation()
+
+        info = self._get_info()
+
+        info.update(
+            {
+                "collision_count": collision_count,
+                "completed_tasks": completed_count,
+                "pickup_tasks": pickup_count,
+                "step": self.current_step,
+                "terminated": terminated,
+                "truncated": truncated,
+                "dataset_index": self.episode_dataset_start,
+            }
+        )
+
+        return (
+            observation,
+            float(total_reward),
+            terminated,
+            truncated,
+            info,
+        )

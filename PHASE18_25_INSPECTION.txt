@@ -1,0 +1,3863 @@
+﻿=== ENVIRONMENT ===
+
+  environment\multi_agv_env.py:8:Cold-chain risk information 
+  environment\multi_agv_env.py:9:    ? 
+> environment\multi_agv_env.py:10:Task urgency / priority 
+  environment\multi_agv_env.py:11:    ? 
+  environment\multi_agv_env.py:12:Risk-aware task prioritization 
+  environment\multi_agv_env.py:13:    ? 
+  environment\multi_agv_env.py:14:Multi-AGV observation 
+  environment\multi_agv_env.py:20:Pickup 
+  environment\multi_agv_env.py:21:    ? 
+> environment\multi_agv_env.py:22:Risk-aware rescue / delivery 
+  environment\multi_agv_env.py:23:    ? 
+  environment\multi_agv_env.py:24:Return to depot 
+  environment\multi_agv_env.py:25: 
+  environment\multi_agv_env.py:26:Observation per AGV: 
+  environment\multi_agv_env.py:90:        render_mode=None, 
+  environment\multi_agv_env.py:91:        dataset_path="ALL_benchmark_W60.parquet", 
+> environment\multi_agv_env.py:92:        risk_aware_assignment=False, 
+  environment\multi_agv_env.py:93:    ): 
+  environment\multi_agv_env.py:94:        super().__init__() 
+  environment\multi_agv_env.py:95: 
+  environment\multi_agv_env.py:96:        self.width = int(width) 
+  environment\multi_agv_env.py:100:        self.render_mode = render_mode 
+  environment\multi_agv_env.py:101: 
+> environment\multi_agv_env.py:102:        self.risk_aware_assignment = bool( 
+> environment\multi_agv_env.py:103:            risk_aware_assignment 
+  environment\multi_agv_env.py:104:        ) 
+  environment\multi_agv_env.py:105: 
+  environment\multi_agv_env.py:106:        # ------------------------------------------------------ 
+  environment\multi_agv_env.py:107:        # Basic validation 
+  environment\multi_agv_env.py:259:        # ------------------------------------------------------ 
+  environment\multi_agv_env.py:260: 
+> environment\multi_agv_env.py:261:        self.task_risk = {} 
+  environment\multi_agv_env.py:262:        self.current_risk_records = {} 
+  environment\multi_agv_env.py:263: 
+  environment\multi_agv_env.py:264:    # ========================================================== 
+  environment\multi_agv_env.py:265:    # BOOLEAN NORMALIZATION 
+  environment\multi_agv_env.py:269:    def _as_bool(value): 
+  environment\multi_agv_env.py:270:        """ 
+> environment\multi_agv_env.py:271:        Safely convert dataset values into booleans. 
+  environment\multi_agv_env.py:272:        """ 
+  environment\multi_agv_env.py:273: 
+  environment\multi_agv_env.py:274:        if isinstance(value, bool): 
+  environment\multi_agv_env.py:275:            return value 
+  environment\multi_agv_env.py:348:                data[column] 
+  environment\multi_agv_env.py:349:                .apply( 
+> environment\multi_agv_env.py:350:                    lambda value: self._safe_float( 
+  environment\multi_agv_env.py:351:                        value, 
+  environment\multi_agv_env.py:352:                        default=np.nan, 
+  environment\multi_agv_env.py:353:                    ) 
+  environment\multi_agv_env.py:354:                ) 
+  environment\multi_agv_env.py:383: 
+  environment\multi_agv_env.py:384:    @staticmethod 
+> environment\multi_agv_env.py:385:    def _safe_float( 
+  environment\multi_agv_env.py:386:        value, 
+  environment\multi_agv_env.py:387:        default=0.0, 
+  environment\multi_agv_env.py:388:    ): 
+  environment\multi_agv_env.py:389:        """ 
+> environment\multi_agv_env.py:390:        Safely convert a value to float. 
+  environment\multi_agv_env.py:391:        """ 
+  environment\multi_agv_env.py:392: 
+  environment\multi_agv_env.py:393:        try: 
+  environment\multi_agv_env.py:394:            return float(value) 
+  environment\multi_agv_env.py:407:        """ 
+  environment\multi_agv_env.py:408: 
+> environment\multi_agv_env.py:409:        temperature = self._safe_float( 
+  environment\multi_agv_env.py:410:            temperature, 
+  environment\multi_agv_env.py:411:            default=self.temperature_min, 
+  environment\multi_agv_env.py:412:        ) 
+  environment\multi_agv_env.py:413: 
+  environment\multi_agv_env.py:466:            ) 
+  environment\multi_agv_env.py:467: 
+> environment\multi_agv_env.py:468:            is_fail_safe = self._as_bool( 
+  environment\multi_agv_env.py:469:                row.get( 
+> environment\multi_agv_env.py:470:                    "is_fail_safe", 
+  environment\multi_agv_env.py:471:                    False, 
+  environment\multi_agv_env.py:472:                ) 
+  environment\multi_agv_env.py:473:            ) 
+  environment\multi_agv_env.py:474: 
+  environment\multi_agv_env.py:476:                is_trainable 
+  environment\multi_agv_env.py:477:                and not is_incomplete 
+> environment\multi_agv_env.py:478:                and not is_fail_safe 
+  environment\multi_agv_env.py:479:            ): 
+  environment\multi_agv_env.py:480:                indices.append( 
+  environment\multi_agv_env.py:481:                    index 
+  environment\multi_agv_env.py:482:                ) 
+  environment\multi_agv_env.py:547:        ) 
+  environment\multi_agv_env.py:548: 
+> environment\multi_agv_env.py:549:        result["is_fail_safe"] = self._as_bool( 
+  environment\multi_agv_env.py:550:            result.get( 
+> environment\multi_agv_env.py:551:                "is_fail_safe", 
+  environment\multi_agv_env.py:552:                False, 
+  environment\multi_agv_env.py:553:            ) 
+  environment\multi_agv_env.py:554:        ) 
+  environment\multi_agv_env.py:555: 
+  environment\multi_agv_env.py:558:        # ------------------------------------------------------ 
+  environment\multi_agv_env.py:559: 
+> environment\multi_agv_env.py:560:        temperature = self._safe_float( 
+  environment\multi_agv_env.py:561:            result.get( 
+  environment\multi_agv_env.py:562:                "temperature", 
+  environment\multi_agv_env.py:563:                result.get( 
+  environment\multi_agv_env.py:564:                    "iot_temperature", 
+  environment\multi_agv_env.py:584:        # ------------------------------------------------------ 
+  environment\multi_agv_env.py:585: 
+> environment\multi_agv_env.py:586:        risk_score = self._safe_float( 
+  environment\multi_agv_env.py:587:            result.get( 
+  environment\multi_agv_env.py:588:                "risk_score", 
+  environment\multi_agv_env.py:589:                0.0, 
+  environment\multi_agv_env.py:590:            ), 
+  environment\multi_agv_env.py:604:        # ------------------------------------------------------ 
+  environment\multi_agv_env.py:605: 
+> environment\multi_agv_env.py:606:        urgency_score = self._safe_float( 
+  environment\multi_agv_env.py:607:            result.get( 
+> environment\multi_agv_env.py:608:                "urgency_score", 
+  environment\multi_agv_env.py:609:                0.0, 
+  environment\multi_agv_env.py:610:            ), 
+  environment\multi_agv_env.py:611:            default=0.0, 
+  environment\multi_agv_env.py:612:        ) 
+  environment\multi_agv_env.py:613: 
+> environment\multi_agv_env.py:614:        result["urgency_score"] = float( 
+  environment\multi_agv_env.py:615:            np.clip( 
+> environment\multi_agv_env.py:616:                urgency_score, 
+  environment\multi_agv_env.py:617:                0.0, 
+  environment\multi_agv_env.py:618:                1.0, 
+  environment\multi_agv_env.py:619:            ) 
+  environment\multi_agv_env.py:620:        ) 
+  environment\multi_agv_env.py:621: 
+  environment\multi_agv_env.py:622:        # ------------------------------------------------------ 
+> environment\multi_agv_env.py:623:        # Priority 
+  environment\multi_agv_env.py:624:        # ------------------------------------------------------ 
+  environment\multi_agv_env.py:625: 
+> environment\multi_agv_env.py:626:        priority = result.get( 
+> environment\multi_agv_env.py:627:            "priority", 
+  environment\multi_agv_env.py:628:            None, 
+  environment\multi_agv_env.py:629:        ) 
+  environment\multi_agv_env.py:630: 
+> environment\multi_agv_env.py:631:        if priority is None: 
+  environment\multi_agv_env.py:632: 
+  environment\multi_agv_env.py:633:            urgency = result[ 
+> environment\multi_agv_env.py:634:                "urgency_score" 
+  environment\multi_agv_env.py:635:            ] 
+  environment\multi_agv_env.py:636: 
+  environment\multi_agv_env.py:637:            if urgency >= 0.70: 
+> environment\multi_agv_env.py:638:                priority = "HIGH" 
+  environment\multi_agv_env.py:639: 
+  environment\multi_agv_env.py:640:            elif urgency >= 0.40: 
+> environment\multi_agv_env.py:641:                priority = "MEDIUM" 
+  environment\multi_agv_env.py:642: 
+  environment\multi_agv_env.py:643:            else: 
+> environment\multi_agv_env.py:644:                priority = "LOW" 
+  environment\multi_agv_env.py:645: 
+> environment\multi_agv_env.py:646:        result["priority"] = str( 
+> environment\multi_agv_env.py:647:            priority 
+  environment\multi_agv_env.py:648:        ).upper() 
+  environment\multi_agv_env.py:649: 
+  environment\multi_agv_env.py:650:        # ------------------------------------------------------ 
+  environment\multi_agv_env.py:651:        # Weather 
+  environment\multi_agv_env.py:652:        # ------------------------------------------------------ 
+  environment\multi_agv_env.py:653: 
+> environment\multi_agv_env.py:654:        weather = self._safe_float( 
+  environment\multi_agv_env.py:655:            result.get( 
+  environment\multi_agv_env.py:656:                "weather", 
+  environment\multi_agv_env.py:657:                result.get( 
+  environment\multi_agv_env.py:658:                    "weather_risk", 
+  environment\multi_agv_env.py:678:        # ------------------------------------------------------ 
+  environment\multi_agv_env.py:679: 
+> environment\multi_agv_env.py:680:        disruption = self._safe_float( 
+  environment\multi_agv_env.py:681:            result.get( 
+  environment\multi_agv_env.py:682:                "disruption", 
+  environment\multi_agv_env.py:683:                result.get( 
+  environment\multi_agv_env.py:684:                    "disruption_risk", 
+  environment\multi_agv_env.py:707:        # ------------------------------------------------------ 
+  environment\multi_agv_env.py:708: 
+> environment\multi_agv_env.py:709:        delay = self._safe_float( 
+  environment\multi_agv_env.py:710:            result.get( 
+  environment\multi_agv_env.py:711:                "delay", 
+  environment\multi_agv_env.py:712:                result.get( 
+  environment\multi_agv_env.py:713:                    "delay_risk", 
+  environment\multi_agv_env.py:733:        # ------------------------------------------------------ 
+  environment\multi_agv_env.py:734: 
+> environment\multi_agv_env.py:735:        route_risk = self._safe_float( 
+  environment\multi_agv_env.py:736:            result.get( 
+  environment\multi_agv_env.py:737:                "route_risk", 
+  environment\multi_agv_env.py:738:                result.get( 
+  environment\multi_agv_env.py:739:                    "route_risk_level", 
+  environment\multi_agv_env.py:759:        # ------------------------------------------------------ 
+  environment\multi_agv_env.py:760: 
+> environment\multi_agv_env.py:761:        future_risk_60 = self._safe_float( 
+  environment\multi_agv_env.py:762:            result.get( 
+  environment\multi_agv_env.py:763:                "future_risk_60", 
+  environment\multi_agv_env.py:764:                result.get( 
+  environment\multi_agv_env.py:765:                    "y_next_60_R2", 
+  environment\multi_agv_env.py:782:        # ------------------------------------------------------ 
+  environment\multi_agv_env.py:783: 
+> environment\multi_agv_env.py:784:        eta_60 = self._safe_float( 
+  environment\multi_agv_env.py:785:            result.get( 
+  environment\multi_agv_env.py:786:                "eta_60", 
+  environment\multi_agv_env.py:787:                result.get( 
+  environment\multi_agv_env.py:788:                    "eta_to_R2_60", 
+  environment\multi_agv_env.py:799: 
+  environment\multi_agv_env.py:800:        # ------------------------------------------------------ 
+> environment\multi_agv_env.py:801:        # Remaining Safe Exposure Time 
+  environment\multi_agv_env.py:802:        # ------------------------------------------------------ 
+  environment\multi_agv_env.py:803: 
+> environment\multi_agv_env.py:804:        rset_minutes = self._safe_float( 
+  environment\multi_agv_env.py:805:            result.get( 
+> environment\multi_agv_env.py:806:                "rset_minutes", 
+  environment\multi_agv_env.py:807:                60.0, 
+  environment\multi_agv_env.py:808:            ), 
+  environment\multi_agv_env.py:809:            default=60.0, 
+  environment\multi_agv_env.py:810:        ) 
+  environment\multi_agv_env.py:811: 
+> environment\multi_agv_env.py:812:        result["rset_minutes"] = float( 
+  environment\multi_agv_env.py:813:            np.clip( 
+> environment\multi_agv_env.py:814:                rset_minutes, 
+  environment\multi_agv_env.py:815:                0.0, 
+  environment\multi_agv_env.py:816:                60.0, 
+  environment\multi_agv_env.py:817:            ) 
+  environment\multi_agv_env.py:818:        ) 
+  environment\multi_agv_env.py:821: 
+  environment\multi_agv_env.py:822:    # ========================================================== 
+> environment\multi_agv_env.py:823:    # PRIORITY 
+  environment\multi_agv_env.py:824:    # ========================================================== 
+  environment\multi_agv_env.py:825: 
+  environment\multi_agv_env.py:826:    @staticmethod 
+> environment\multi_agv_env.py:827:    def _priority_rank( 
+> environment\multi_agv_env.py:828:        priority, 
+  environment\multi_agv_env.py:829:    ): 
+  environment\multi_agv_env.py:830:        """ 
+> environment\multi_agv_env.py:831:        Convert priority into numerical rank. 
+  environment\multi_agv_env.py:832: 
+  environment\multi_agv_env.py:833:        HIGH   -> 3 
+  environment\multi_agv_env.py:834:        MEDIUM -> 2 
+  environment\multi_agv_env.py:835:        LOW    -> 1 
+  environment\multi_agv_env.py:836:        """ 
+  environment\multi_agv_env.py:837: 
+> environment\multi_agv_env.py:838:        priority = str( 
+> environment\multi_agv_env.py:839:            priority 
+  environment\multi_agv_env.py:840:        ).upper() 
+  environment\multi_agv_env.py:841: 
+> environment\multi_agv_env.py:842:        if priority == "HIGH": 
+  environment\multi_agv_env.py:843:            return 3 
+  environment\multi_agv_env.py:844: 
+> environment\multi_agv_env.py:845:        if priority == "MEDIUM": 
+  environment\multi_agv_env.py:846:            return 2 
+  environment\multi_agv_env.py:847: 
+  environment\multi_agv_env.py:848:        return 1 
+  environment\multi_agv_env.py:849: 
+> environment\multi_agv_env.py:850:    def _get_risk_priority_score( 
+  environment\multi_agv_env.py:851:        self, 
+  environment\multi_agv_env.py:852:        task, 
+  environment\multi_agv_env.py:853:    ): 
+  environment\multi_agv_env.py:854:        """ 
+  environment\multi_agv_env.py:872:            ) 
+  environment\multi_agv_env.py:873: 
+> environment\multi_agv_env.py:874:        assigned_agv = getattr( 
+  environment\multi_agv_env.py:875:            task, 
+> environment\multi_agv_env.py:876:            "assigned_agv", 
+  environment\multi_agv_env.py:877:            None, 
+  environment\multi_agv_env.py:878:        ) 
+  environment\multi_agv_env.py:879: 
+> environment\multi_agv_env.py:880:        record = self.task_risk.get( 
+  environment\multi_agv_env.py:881:            task_id, 
+  environment\multi_agv_env.py:882:            None, 
+  environment\multi_agv_env.py:883:        ) 
+  environment\multi_agv_env.py:884: 
+  environment\multi_agv_env.py:886:            record is None 
+  environment\multi_agv_env.py:887:            and 
+> environment\multi_agv_env.py:888:            assigned_agv is not None 
+  environment\multi_agv_env.py:889:        ): 
+> environment\multi_agv_env.py:890:            record = self.task_risk.get( 
+> environment\multi_agv_env.py:891:                assigned_agv, 
+  environment\multi_agv_env.py:892:                None, 
+  environment\multi_agv_env.py:893:            ) 
+  environment\multi_agv_env.py:894: 
+  environment\multi_agv_env.py:895:        if record is None: 
+  environment\multi_agv_env.py:896:            record = {} 
+  environment\multi_agv_env.py:897: 
+> environment\multi_agv_env.py:898:        priority = getattr( 
+  environment\multi_agv_env.py:899:            task, 
+> environment\multi_agv_env.py:900:            "priority", 
+  environment\multi_agv_env.py:901:            record.get( 
+> environment\multi_agv_env.py:902:                "priority", 
+  environment\multi_agv_env.py:903:                "LOW", 
+  environment\multi_agv_env.py:904:            ), 
+  environment\multi_agv_env.py:905:        ) 
+  environment\multi_agv_env.py:906: 
+> environment\multi_agv_env.py:907:        urgency = self._safe_float( 
+  environment\multi_agv_env.py:908:            getattr( 
+  environment\multi_agv_env.py:909:                task, 
+> environment\multi_agv_env.py:910:                "urgency_score", 
+  environment\multi_agv_env.py:911:                record.get( 
+> environment\multi_agv_env.py:912:                    "urgency_score", 
+  environment\multi_agv_env.py:913:                    0.0, 
+  environment\multi_agv_env.py:914:                ), 
+  environment\multi_agv_env.py:915:            ) 
+  environment\multi_agv_env.py:916:        ) 
+  environment\multi_agv_env.py:917: 
+> environment\multi_agv_env.py:918:        risk = self._safe_float( 
+  environment\multi_agv_env.py:919:            getattr( 
+  environment\multi_agv_env.py:920:                task, 
+  environment\multi_agv_env.py:921:                "risk_score", 
+  environment\multi_agv_env.py:922:                record.get( 
+  environment\multi_agv_env.py:927:        ) 
+  environment\multi_agv_env.py:928: 
+> environment\multi_agv_env.py:929:        future_risk_60 = self._safe_float( 
+  environment\multi_agv_env.py:930:            record.get( 
+  environment\multi_agv_env.py:931:                "future_risk_60", 
+  environment\multi_agv_env.py:932:                record.get( 
+  environment\multi_agv_env.py:933:                    "y_next_60_R2", 
+  environment\multi_agv_env.py:937:        ) 
+  environment\multi_agv_env.py:938: 
+> environment\multi_agv_env.py:939:        eta_60 = self._safe_float( 
+  environment\multi_agv_env.py:940:            record.get( 
+  environment\multi_agv_env.py:941:                "eta_60", 
+  environment\multi_agv_env.py:942:                record.get( 
+  environment\multi_agv_env.py:943:                    "eta_to_R2_60", 
+  environment\multi_agv_env.py:947:        ) 
+  environment\multi_agv_env.py:948: 
+> environment\multi_agv_env.py:949:        rset_minutes = self._safe_float( 
+  environment\multi_agv_env.py:950:            record.get( 
+> environment\multi_agv_env.py:951:                "rset_minutes", 
+  environment\multi_agv_env.py:952:                60.0, 
+  environment\multi_agv_env.py:953:            ) 
+  environment\multi_agv_env.py:954:        ) 
+  environment\multi_agv_env.py:955: 
+> environment\multi_agv_env.py:956:        rset_minutes = float( 
+  environment\multi_agv_env.py:957:            np.clip( 
+> environment\multi_agv_env.py:958:                rset_minutes, 
+  environment\multi_agv_env.py:959:                0.0, 
+  environment\multi_agv_env.py:960:                60.0, 
+  environment\multi_agv_env.py:961:            ) 
+  environment\multi_agv_env.py:962:        ) 
+  environment\multi_agv_env.py:963: 
+  environment\multi_agv_env.py:964:        # Smaller RSET = more urgent. 
+> environment\multi_agv_env.py:965:        rset_priority = -rset_minutes 
+  environment\multi_agv_env.py:966: 
+> environment\multi_agv_env.py:967:        # Smaller ETA = better priority. 
+> environment\multi_agv_env.py:968:        eta_priority = ( 
+  environment\multi_agv_env.py:969:            -eta_60 
+  environment\multi_agv_env.py:970:            if eta_60 > 0.0 
+  environment\multi_agv_env.py:971:            else 0.0 
+  environment\multi_agv_env.py:972:        ) 
+  environment\multi_agv_env.py:973: 
+  environment\multi_agv_env.py:974:        return ( 
+> environment\multi_agv_env.py:975:            self._priority_rank( 
+> environment\multi_agv_env.py:976:                priority 
+  environment\multi_agv_env.py:977:            ), 
+  environment\multi_agv_env.py:978:            urgency, 
+  environment\multi_agv_env.py:979:            risk, 
+  environment\multi_agv_env.py:980:            future_risk_60, 
+> environment\multi_agv_env.py:981:            rset_priority, 
+> environment\multi_agv_env.py:982:            eta_priority, 
+  environment\multi_agv_env.py:983:        ) 
+  environment\multi_agv_env.py:984: 
+  environment\multi_agv_env.py:985:    def _get_risk_aware_task_order( 
+  environment\multi_agv_env.py:986:        self, 
+  environment\multi_agv_env.py:988:        """ 
+  environment\multi_agv_env.py:989:        Return unfinished tasks ordered from highest 
+> environment\multi_agv_env.py:990:        cold-chain priority to lowest. 
+  environment\multi_agv_env.py:991:        """ 
+  environment\multi_agv_env.py:992: 
+  environment\multi_agv_env.py:993:        active_tasks = [ 
+  environment\multi_agv_env.py:994:            task 
+  environment\multi_agv_env.py:998: 
+  environment\multi_agv_env.py:999:        active_tasks.sort( 
+> environment\multi_agv_env.py:1000:            key=self._get_risk_priority_score, 
+  environment\multi_agv_env.py:1001:            reverse=True, 
+  environment\multi_agv_env.py:1002:        ) 
+  environment\multi_agv_env.py:1003: 
+  environment\multi_agv_env.py:1004:        return active_tasks 
+  environment\multi_agv_env.py:1040:        Determine the AGV's current operational target. 
+  environment\multi_agv_env.py:1041: 
+> environment\multi_agv_env.py:1042:        Priority: 
+  environment\multi_agv_env.py:1043: 
+> environment\multi_agv_env.py:1044:            1. Rescue destination 
+  environment\multi_agv_env.py:1045:            2. Pickup 
+  environment\multi_agv_env.py:1046:            3. Delivery 
+  environment\multi_agv_env.py:1047:            4. Return depot 
+> environment\multi_agv_env.py:1048:            5. AGV destination 
+  environment\multi_agv_env.py:1049:        """ 
+  environment\multi_agv_env.py:1050: 
+  environment\multi_agv_env.py:1051:        # ------------------------------------------------------ 
+  environment\multi_agv_env.py:1052:        # Returning AGV 
+  environment\multi_agv_env.py:1063:            getattr( 
+  environment\multi_agv_env.py:1064:                agv, 
+> environment\multi_agv_env.py:1065:                "destination", 
+  environment\multi_agv_env.py:1066:                None, 
+  environment\multi_agv_env.py:1067:            ) 
+  environment\multi_agv_env.py:1068:            is not None 
+  environment\multi_agv_env.py:1069:        ): 
+  environment\multi_agv_env.py:1070:            return tuple( 
+> environment\multi_agv_env.py:1071:                agv.destination 
+  environment\multi_agv_env.py:1072:            ) 
+  environment\multi_agv_env.py:1073: 
+  environment\multi_agv_env.py:1074:        # ------------------------------------------------------ 
+  environment\multi_agv_env.py:1075:        # Task lookup 
+  environment\multi_agv_env.py:1094:            ] 
+  environment\multi_agv_env.py:1095: 
+> environment\multi_agv_env.py:1096:            # Rescue destination has highest priority. 
+  environment\multi_agv_env.py:1097:            if ( 
+  environment\multi_agv_env.py:1098:                getattr( 
+  environment\multi_agv_env.py:1099:                    task, 
+> environment\multi_agv_env.py:1100:                    "in_rescue", 
+  environment\multi_agv_env.py:1101:                    False, 
+  environment\multi_agv_env.py:1102:                ) 
+  environment\multi_agv_env.py:1103:                and 
+  environment\multi_agv_env.py:1104:                getattr( 
+  environment\multi_agv_env.py:1105:                    task, 
+> environment\multi_agv_env.py:1106:                    "rescue_destination", 
+  environment\multi_agv_env.py:1107:                    None, 
+  environment\multi_agv_env.py:1108:                ) is not None 
+  environment\multi_agv_env.py:1109:            ): 
+  environment\multi_agv_env.py:1110:                return tuple( 
+> environment\multi_agv_env.py:1111:                    task.rescue_destination 
+  environment\multi_agv_env.py:1112:                ) 
+  environment\multi_agv_env.py:1113: 
+  environment\multi_agv_env.py:1114:            if task.status == "IN_PROGRESS": 
+  environment\multi_agv_env.py:1115:                return tuple( 
+  environment\multi_agv_env.py:1117:                ) 
+  environment\multi_agv_env.py:1118: 
+> environment\multi_agv_env.py:1119:            if task.status == "PICKED_UP": 
+  environment\multi_agv_env.py:1120:                return tuple( 
+  environment\multi_agv_env.py:1121:                    task.delivery 
+  environment\multi_agv_env.py:1122:                ) 
+  environment\multi_agv_env.py:1123: 
+  environment\multi_agv_env.py:1124:        # ------------------------------------------------------ 
+> environment\multi_agv_env.py:1125:        # AGV destination 
+  environment\multi_agv_env.py:1126:        # ------------------------------------------------------ 
+  environment\multi_agv_env.py:1127: 
+> environment\multi_agv_env.py:1128:        destination = getattr( 
+  environment\multi_agv_env.py:1129:            agv, 
+> environment\multi_agv_env.py:1130:            "destination", 
+  environment\multi_agv_env.py:1131:            None, 
+  environment\multi_agv_env.py:1132:        ) 
+  environment\multi_agv_env.py:1133: 
+> environment\multi_agv_env.py:1134:        if destination is not None: 
+  environment\multi_agv_env.py:1135:            return tuple( 
+> environment\multi_agv_env.py:1136:                destination 
+  environment\multi_agv_env.py:1137:            ) 
+  environment\multi_agv_env.py:1138: 
+  environment\multi_agv_env.py:1139:        # ------------------------------------------------------ 
+  environment\multi_agv_env.py:1140:        # Depot fallback 
+  environment\multi_agv_env.py:1279:        return 0
+  environment\multi_agv_env.py:1280:
+> environment\multi_agv_env.py:1281:    def _select_safe_destination( 
+  environment\multi_agv_env.py:1282:        self, 
+  environment\multi_agv_env.py:1283:        task, 
+  environment\multi_agv_env.py:1284:    ): 
+  environment\multi_agv_env.py:1285:        """ 
+  environment\multi_agv_env.py:1286:        Select a low-risk warehouse-zone center as a temporary 
+> environment\multi_agv_env.py:1287:        rescue destination for a sufficiently risky task. 
+  environment\multi_agv_env.py:1288: 
+  environment\multi_agv_env.py:1289:        The original delivery location is never modified. 
+  environment\multi_agv_env.py:1290:        """ 
+  environment\multi_agv_env.py:1291: 
+  environment\multi_agv_env.py:1293:            return None 
+  environment\multi_agv_env.py:1294: 
+> environment\multi_agv_env.py:1295:        risk_score = self._safe_float( 
+  environment\multi_agv_env.py:1296:            getattr( 
+  environment\multi_agv_env.py:1297:                task, 
+  environment\multi_agv_env.py:1298:                "risk_score", 
+  environment\multi_agv_env.py:1299:                0.0, 
+  environment\multi_agv_env.py:1301:        ) 
+  environment\multi_agv_env.py:1302: 
+> environment\multi_agv_env.py:1303:        # Rescue only for meaningful risk. 
+  environment\multi_agv_env.py:1304:        if risk_score < 0.50: 
+  environment\multi_agv_env.py:1305:            return None 
+  environment\multi_agv_env.py:1306: 
+  environment\multi_agv_env.py:1307:        # ------------------------------------------------------ 
+  environment\multi_agv_env.py:1329: 
+  environment\multi_agv_env.py:1330:        # ------------------------------------------------------ 
+> environment\multi_agv_env.py:1331:        # Existing rescue destinations 
+  environment\multi_agv_env.py:1332:        # ------------------------------------------------------ 
+  environment\multi_agv_env.py:1333: 
+> environment\multi_agv_env.py:1334:        occupied_destinations = set() 
+  environment\multi_agv_env.py:1335: 
+  environment\multi_agv_env.py:1336:        for other_task in self.tasks: 
+  environment\multi_agv_env.py:1337: 
+  environment\multi_agv_env.py:1338:            if ( 
+  environment\multi_agv_env.py:1351:            if getattr( 
+  environment\multi_agv_env.py:1352:                other_task, 
+> environment\multi_agv_env.py:1353:                "in_rescue", 
+  environment\multi_agv_env.py:1354:                False, 
+  environment\multi_agv_env.py:1355:            ): 
+  environment\multi_agv_env.py:1356: 
+> environment\multi_agv_env.py:1357:                destination = getattr( 
+  environment\multi_agv_env.py:1358:                    other_task, 
+> environment\multi_agv_env.py:1359:                    "rescue_destination", 
+  environment\multi_agv_env.py:1360:                    None, 
+  environment\multi_agv_env.py:1361:                ) 
+  environment\multi_agv_env.py:1362: 
+> environment\multi_agv_env.py:1363:                if destination is not None: 
+> environment\multi_agv_env.py:1364:                    occupied_destinations.add( 
+> environment\multi_agv_env.py:1365:                        tuple(destination) 
+  environment\multi_agv_env.py:1366:                    ) 
+  environment\multi_agv_env.py:1367: 
+  environment\multi_agv_env.py:1368:        # ------------------------------------------------------ 
+> environment\multi_agv_env.py:1369:        # Candidate destinations 
+  environment\multi_agv_env.py:1370:        # ------------------------------------------------------ 
+  environment\multi_agv_env.py:1371: 
+  environment\multi_agv_env.py:1372:        candidates = [] 
+  environment\multi_agv_env.py:1373: 
+  environment\multi_agv_env.py:1384:                continue 
+  environment\multi_agv_env.py:1385: 
+> environment\multi_agv_env.py:1386:            # Never rescue to source zone. 
+  environment\multi_agv_env.py:1387:            if zone_id_int == int( 
+  environment\multi_agv_env.py:1388:                source_zone 
+  environment\multi_agv_env.py:1389:            ): 
+  environment\multi_agv_env.py:1390:                continue 
+  environment\multi_agv_env.py:1391: 
+> environment\multi_agv_env.py:1392:            dynamic_risk = self._safe_float( 
+  environment\multi_agv_env.py:1393:                risk_data.get( 
+  environment\multi_agv_env.py:1394:                    "dynamic_risk", 
+  environment\multi_agv_env.py:1395:                    1.0, 
+  environment\multi_agv_env.py:1396:                ), 
+  environment\multi_agv_env.py:1398:            ) 
+  environment\multi_agv_env.py:1399:
+> environment\multi_agv_env.py:1400:            zone_temperature = self._safe_float(
+  environment\multi_agv_env.py:1401:                all_thermal_states.get(
+  environment\multi_agv_env.py:1402:                    zone_id_int,
+  environment\multi_agv_env.py:1403:                    {},
+  environment\multi_agv_env.py:1404:                ).get(
+  environment\multi_agv_env.py:1409:            )
+  environment\multi_agv_env.py:1410: 
+> environment\multi_agv_env.py:1411:            # Only genuinely safer zones. 
+  environment\multi_agv_env.py:1412:            if dynamic_risk >= 0.30: 
+  environment\multi_agv_env.py:1413:                continue 
+  environment\multi_agv_env.py:1414: 
+  environment\multi_agv_env.py:1415:            try: 
+  environment\multi_agv_env.py:1425:                1 
+  environment\multi_agv_env.py:1426:                if center 
+> environment\multi_agv_env.py:1427:                in occupied_destinations 
+  environment\multi_agv_env.py:1428:                else 0 
+  environment\multi_agv_env.py:1429:            ) 
+  environment\multi_agv_env.py:1430: 
+  environment\multi_agv_env.py:1431:            distance = self._manhattan_distance( 
+  environment\multi_agv_env.py:1479:            urgency 
+  environment\multi_agv_env.py:1480:            risk 
+> environment\multi_agv_env.py:1481:            priority 
+  environment\multi_agv_env.py:1482:        """ 
+  environment\multi_agv_env.py:1483: 
+  environment\multi_agv_env.py:1484:        if self.system is None: 
+  environment\multi_agv_env.py:1485:            return None 
+  environment\multi_agv_env.py:1494:            return None 
+  environment\multi_agv_env.py:1495: 
+> environment\multi_agv_env.py:1496:        priority = self._priority_rank( 
+  environment\multi_agv_env.py:1497:            getattr( 
+  environment\multi_agv_env.py:1498:                task, 
+> environment\multi_agv_env.py:1499:                "priority", 
+  environment\multi_agv_env.py:1500:                "LOW", 
+  environment\multi_agv_env.py:1501:            ) 
+  environment\multi_agv_env.py:1502:        ) 
+  environment\multi_agv_env.py:1503: 
+> environment\multi_agv_env.py:1504:        urgency = self._safe_float( 
+  environment\multi_agv_env.py:1505:            getattr( 
+  environment\multi_agv_env.py:1506:                task, 
+> environment\multi_agv_env.py:1507:                "urgency_score", 
+  environment\multi_agv_env.py:1508:                0.0, 
+  environment\multi_agv_env.py:1509:            ) 
+  environment\multi_agv_env.py:1510:        ) 
+  environment\multi_agv_env.py:1511: 
+> environment\multi_agv_env.py:1512:        risk = self._safe_float( 
+  environment\multi_agv_env.py:1513:            getattr( 
+  environment\multi_agv_env.py:1514:                task, 
+  environment\multi_agv_env.py:1515:                "risk_score", 
+  environment\multi_agv_env.py:1516:                0.0, 
+  environment\multi_agv_env.py:1525:            )
+  environment\multi_agv_env.py:1526:            zone_risks = self.warehouse.get_all_zone_risks()
+> environment\multi_agv_env.py:1527:            zone_risk = self._safe_float(
+  environment\multi_agv_env.py:1528:                zone_risks.get(
+  environment\multi_agv_env.py:1529:                    pickup_zone_id,
+  environment\multi_agv_env.py:1530:                    {},
+  environment\multi_agv_env.py:1531:                ).get(
+  environment\multi_agv_env.py:1558:                - 5.0 * risk 
+  environment\multi_agv_env.py:1559:                - 5.0 * zone_risk 
+> environment\multi_agv_env.py:1560:                - 2.0 * float(priority) 
+  environment\multi_agv_env.py:1561:            ) 
+  environment\multi_agv_env.py:1562: 
+  environment\multi_agv_env.py:1563:            if ( 
+  environment\multi_agv_env.py:1564:                best_score is None 
+  environment\multi_agv_env.py:1571: 
+  environment\multi_agv_env.py:1572:    # ========================================================== 
+> environment\multi_agv_env.py:1573:    # RISK-AWARE TASK ASSIGNMENT 
+  environment\multi_agv_env.py:1574:    # ========================================================== 
+  environment\multi_agv_env.py:1575: 
+> environment\multi_agv_env.py:1576:    def _assign_tasks_risk_aware( 
+  environment\multi_agv_env.py:1577:        self, 
+  environment\multi_agv_env.py:1578:    ): 
+  environment\multi_agv_env.py:1579:        """ 
+> environment\multi_agv_env.py:1580:        Assign pending tasks to AGVs using risk-aware 
+> environment\multi_agv_env.py:1581:        priority and responder selection. 
+  environment\multi_agv_env.py:1582: 
+> environment\multi_agv_env.py:1583:        Existing assignments are preserved. 
+  environment\multi_agv_env.py:1584:        """ 
+  environment\multi_agv_env.py:1585: 
+  environment\multi_agv_env.py:1586:        if self.system is None: 
+  environment\multi_agv_env.py:1587:            return 
+  environment\multi_agv_env.py:1598:                continue 
+  environment\multi_agv_env.py:1599: 
+> environment\multi_agv_env.py:1600:            if task.assigned_agv is not None and task.status != "PENDING": 
+  environment\multi_agv_env.py:1601: 
+  environment\multi_agv_env.py:1602:                available_agvs.discard( 
+> environment\multi_agv_env.py:1603:                    task.assigned_agv 
+  environment\multi_agv_env.py:1604:                ) 
+  environment\multi_agv_env.py:1605: 
+  environment\multi_agv_env.py:1606:                continue 
+  environment\multi_agv_env.py:1607: 
+  environment\multi_agv_env.py:1629:                    )
+  environment\multi_agv_env.py:1630:                )
+> environment\multi_agv_env.py:1631:                dynamic_risk = self._safe_float(
+  environment\multi_agv_env.py:1632:                    zone_data.get(
+  environment\multi_agv_env.py:1633:                        "dynamic_risk",
+  environment\multi_agv_env.py:1634:                        0.0,
+  environment\multi_agv_env.py:1635:                    )
+  environment\multi_agv_env.py:1637:            except Exception:
+  environment\multi_agv_env.py:1638:                dynamic_risk = 0.0
+> environment\multi_agv_env.py:1639:            existing_risk = self._safe_float(
+  environment\multi_agv_env.py:1640:                getattr(
+  environment\multi_agv_env.py:1641:                    task,
+  environment\multi_agv_env.py:1642:                    "risk_score",
+  environment\multi_agv_env.py:1643:                    0.0,
+  environment\multi_agv_env.py:1654:                )
+  environment\multi_agv_env.py:1655:            )
+> environment\multi_agv_env.py:1656:            existing_future_risk = self._safe_float(
+  environment\multi_agv_env.py:1657:                getattr(
+  environment\multi_agv_env.py:1658:                    task,
+  environment\multi_agv_env.py:1659:                    "future_risk_60",
+  environment\multi_agv_env.py:1660:                    0.0,
+  environment\multi_agv_env.py:1671:                )
+  environment\multi_agv_env.py:1672:            )
+> environment\multi_agv_env.py:1673:            existing_urgency = self._safe_float(
+  environment\multi_agv_env.py:1674:                getattr(
+  environment\multi_agv_env.py:1675:                    task,
+> environment\multi_agv_env.py:1676:                    "urgency_score",
+  environment\multi_agv_env.py:1677:                    0.0,
+  environment\multi_agv_env.py:1678:                )
+  environment\multi_agv_env.py:1679:            )
+> environment\multi_agv_env.py:1680:            task.urgency_score = float(
+  environment\multi_agv_env.py:1681:                np.clip(
+  environment\multi_agv_env.py:1682:                    max(
+  environment\multi_agv_env.py:1683:                        existing_urgency,
+  environment\multi_agv_env.py:1684:                        dynamic_risk,
+  environment\multi_agv_env.py:1688:                )
+  environment\multi_agv_env.py:1689:            )
+> environment\multi_agv_env.py:1690:            # Escalate only to priority levels already supported
+  environment\multi_agv_env.py:1691:            # by the existing ranking system.
+  environment\multi_agv_env.py:1692:            if task.risk_score >= 0.80:
+> environment\multi_agv_env.py:1693:                task.priority = "HIGH"
+> environment\multi_agv_env.py:1694:        # Use the canonical cold-chain priority score for actual
+> environment\multi_agv_env.py:1695:        # task assignment. This makes RSET and ETA operational
+  environment\multi_agv_env.py:1696:        # rather than merely diagnostic.
+  environment\multi_agv_env.py:1697:        pending_tasks.sort(
+> environment\multi_agv_env.py:1698:            key=self._get_risk_priority_score,
+  environment\multi_agv_env.py:1699:            reverse=True,
+  environment\multi_agv_env.py:1700:        )
+  environment\multi_agv_env.py:1701:
+  environment\multi_agv_env.py:1702:        for task in pending_tasks:
+  environment\multi_agv_env.py:1713:                continue 
+  environment\multi_agv_env.py:1714: 
+> environment\multi_agv_env.py:1715:            self.system.assign_task( 
+  environment\multi_agv_env.py:1716:                task_id=task.task_id, 
+  environment\multi_agv_env.py:1717:                agv_id=agv_id, 
+  environment\multi_agv_env.py:1718:            ) 
+  environment\multi_agv_env.py:1719: 
+> environment\multi_agv_env.py:1720:            task.assigned_agv = agv_id 
+  environment\multi_agv_env.py:1721: 
+  environment\multi_agv_env.py:1722:            available_agvs.remove( 
+  environment\multi_agv_env.py:1723:                agv_id 
+  environment\multi_agv_env.py:1724:            ) 
+  environment\multi_agv_env.py:1725: 
+  environment\multi_agv_env.py:1726:    # ========================================================== 
+> environment\multi_agv_env.py:1727:    # ASSIGN TASKS 
+  environment\multi_agv_env.py:1728:    # ========================================================== 
+  environment\multi_agv_env.py:1729: 
+> environment\multi_agv_env.py:1730:    def _assign_tasks( 
+  environment\multi_agv_env.py:1731:        self, 
+  environment\multi_agv_env.py:1732:    ): 
+  environment\multi_agv_env.py:1733:        """ 
+> environment\multi_agv_env.py:1734:        Assign all tasks. 
+  environment\multi_agv_env.py:1735: 
+  environment\multi_agv_env.py:1736:        Baseline mode: 
+  environment\multi_agv_env.py:1737:            Task 1 -> AGV 1 
+  environment\multi_agv_env.py:1738:            Task 2 -> AGV 2 
+  environment\multi_agv_env.py:1746:            return 
+  environment\multi_agv_env.py:1747: 
+> environment\multi_agv_env.py:1748:        if self.risk_aware_assignment: 
+  environment\multi_agv_env.py:1749: 
+> environment\multi_agv_env.py:1750:            self._assign_tasks_risk_aware() 
+  environment\multi_agv_env.py:1751: 
+  environment\multi_agv_env.py:1752:        else: 
+  environment\multi_agv_env.py:1753: 
+  environment\multi_agv_env.py:1754:            for task in self.tasks: 
+  environment\multi_agv_env.py:1761:                    continue 
+  environment\multi_agv_env.py:1762: 
+> environment\multi_agv_env.py:1763:                self.system.assign_task( 
+  environment\multi_agv_env.py:1764:                    task_id=task.task_id, 
+  environment\multi_agv_env.py:1765:                    agv_id=agv_id, 
+  environment\multi_agv_env.py:1766:                ) 
+  environment\multi_agv_env.py:1767: 
+> environment\multi_agv_env.py:1768:                task.assigned_agv = ( 
+  environment\multi_agv_env.py:1769:                    agv_id 
+  environment\multi_agv_env.py:1770:                ) 
+  environment\multi_agv_env.py:1771: 
+  environment\multi_agv_env.py:1772:    # ========================================================== 
+> environment\multi_agv_env.py:1773:    # START ASSIGNED TASKS 
+  environment\multi_agv_env.py:1774:    # ========================================================== 
+  environment\multi_agv_env.py:1775: 
+> environment\multi_agv_env.py:1776:    def _start_assigned_tasks( 
+  environment\multi_agv_env.py:1777:        self, 
+  environment\multi_agv_env.py:1778:    ): 
+  environment\multi_agv_env.py:1779:        """ 
+> environment\multi_agv_env.py:1780:        Start assigned tasks and move AGVs toward pickup. 
+  environment\multi_agv_env.py:1781:        """ 
+  environment\multi_agv_env.py:1782: 
+  environment\multi_agv_env.py:1783:        if self.system is None: 
+  environment\multi_agv_env.py:1784:            return 
+  environment\multi_agv_env.py:1786:        for task in self.tasks: 
+  environment\multi_agv_env.py:1787: 
+> environment\multi_agv_env.py:1788:            if task.assigned_agv is None: 
+  environment\multi_agv_env.py:1789:                continue 
+  environment\multi_agv_env.py:1790: 
+  environment\multi_agv_env.py:1791:            task.start() 
+  environment\multi_agv_env.py:1792: 
+  environment\multi_agv_env.py:1793:            agv = self.system.agvs.get( 
+> environment\multi_agv_env.py:1794:                task.assigned_agv 
+  environment\multi_agv_env.py:1795:            ) 
+  environment\multi_agv_env.py:1796: 
+  environment\multi_agv_env.py:1797:            if agv is None: 
+  environment\multi_agv_env.py:1798:                continue 
+  environment\multi_agv_env.py:1802:            ) 
+  environment\multi_agv_env.py:1803: 
+> environment\multi_agv_env.py:1804:            agv.destination = ( 
+  environment\multi_agv_env.py:1805:                task.pickup 
+  environment\multi_agv_env.py:1806:            ) 
+  environment\multi_agv_env.py:1807: 
+  environment\multi_agv_env.py:1808:            agv.status = "MOVING" 
+  environment\multi_agv_env.py:1818:    # ========================================================== 
+  environment\multi_agv_env.py:1819: 
+> environment\multi_agv_env.py:1820:    def reset( 
+  environment\multi_agv_env.py:1821:        self, 
+  environment\multi_agv_env.py:1822:        *, 
+  environment\multi_agv_env.py:1823:        seed=None, 
+  environment\multi_agv_env.py:1824:        options=None, 
+  environment\multi_agv_env.py:1869: 
+  environment\multi_agv_env.py:1870:        self.current_risk_records = {} 
+> environment\multi_agv_env.py:1871:        self.task_risk = {} 
+  environment\multi_agv_env.py:1872: 
+  environment\multi_agv_env.py:1873:        # ------------------------------------------------------ 
+  environment\multi_agv_env.py:1874:        # Dataset starting position 
+  environment\multi_agv_env.py:1875:        # ------------------------------------------------------ 
+  environment\multi_agv_env.py:2030:            ] = dataset_record 
+  environment\multi_agv_env.py:2031: 
+> environment\multi_agv_env.py:2032:            self.task_risk[ 
+  environment\multi_agv_env.py:2033:                agv_id 
+  environment\multi_agv_env.py:2034:            ] = dataset_record 
+  environment\multi_agv_env.py:2035: 
+  environment\multi_agv_env.py:2036:            # ================================================== 
+  environment\multi_agv_env.py:2048:            # -------------------------------------------------- 
+  environment\multi_agv_env.py:2049: 
+> environment\multi_agv_env.py:2050:            self.task_risk[ 
+  environment\multi_agv_env.py:2051:                task.task_id 
+  environment\multi_agv_env.py:2052:            ] = dataset_record 
+  environment\multi_agv_env.py:2053: 
+  environment\multi_agv_env.py:2054:            # -------------------------------------------------- 
+  environment\multi_agv_env.py:2080:            ) 
+  environment\multi_agv_env.py:2081: 
+> environment\multi_agv_env.py:2082:            task.urgency_score = ( 
+  environment\multi_agv_env.py:2083:                dataset_record[ 
+> environment\multi_agv_env.py:2084:                    "urgency_score" 
+  environment\multi_agv_env.py:2085:                ] 
+  environment\multi_agv_env.py:2086:            ) 
+  environment\multi_agv_env.py:2087: 
+> environment\multi_agv_env.py:2088:            task.priority = ( 
+  environment\multi_agv_env.py:2089:                dataset_record[ 
+> environment\multi_agv_env.py:2090:                    "priority" 
+  environment\multi_agv_env.py:2091:                ] 
+  environment\multi_agv_env.py:2092:            ) 
+  environment\multi_agv_env.py:2093: 
+  environment\multi_agv_env.py:2094:            task.weather_risk = ( 
+  environment\multi_agv_env.py:2122:            ) 
+  environment\multi_agv_env.py:2123: 
+> environment\multi_agv_env.py:2124:            task.rset_minutes = ( 
+  environment\multi_agv_env.py:2125:                dataset_record[ 
+> environment\multi_agv_env.py:2126:                    "rset_minutes" 
+  environment\multi_agv_env.py:2127:                ] 
+  environment\multi_agv_env.py:2128:            ) 
+  environment\multi_agv_env.py:2129: 
+  environment\multi_agv_env.py:2130:            # --------------------------------------------------
+  environment\multi_agv_env.py:2131:            # Cold-chain thermal exposure state
+  environment\multi_agv_env.py:2132:            # --------------------------------------------------
+> environment\multi_agv_env.py:2133:            task.thermal_exposure_steps = 0
+> environment\multi_agv_env.py:2134:            task.picked_up_steps = 0
+  environment\multi_agv_env.py:2135:            task.max_exposure_temperature = 0.0
+  environment\multi_agv_env.py:2136:            task.exposure_exceeded = False
+  environment\multi_agv_env.py:2137:
+  environment\multi_agv_env.py:2138:            # --------------------------------------------------
+  environment\multi_agv_env.py:2139:            # Thermal product-quality degradation model
+  environment\multi_agv_env.py:2140:            # --------------------------------------------------
+> environment\multi_agv_env.py:2141:            # Simulation assumption: 2-8 C is the safe range.
+  environment\multi_agv_env.py:2142:            # Outside this range, temperature-dependent damage
+  environment\multi_agv_env.py:2143:            # accumulates while the product is being transported.
+> environment\multi_agv_env.py:2144:            # quality_remaining is normalized to [0, 1].
+  environment\multi_agv_env.py:2145:            task.product_temperature = 4.0
+> environment\multi_agv_env.py:2146:            task.quality_remaining = 1.0
+  environment\multi_agv_env.py:2147:            task.thermal_damage = 0.0
+  environment\multi_agv_env.py:2148:            task.degradation_occurred = False
+  environment\multi_agv_env.py:2149:            task.spoilage_threshold_reached = False
+  environment\multi_agv_env.py:2150:
+> environment\multi_agv_env.py:2151:            task.rescue_recovered = False
+> environment\multi_agv_env.py:2152:            # Rescue state 
+  environment\multi_agv_env.py:2153:            # -------------------------------------------------- 
+  environment\multi_agv_env.py:2154: 
+> environment\multi_agv_env.py:2155:            task.in_rescue = False 
+> environment\multi_agv_env.py:2156:            task.rescue_destination = None 
+  environment\multi_agv_env.py:2157:            task.original_delivery = ( 
+  environment\multi_agv_env.py:2158:                task.delivery 
+  environment\multi_agv_env.py:2159:            ) 
+  environment\multi_agv_env.py:2160: 
+  environment\multi_agv_env.py:2161:            # -------------------------------------------------- 
+> environment\multi_agv_env.py:2162:            # Assignment 
+  environment\multi_agv_env.py:2163:            # -------------------------------------------------- 
+  environment\multi_agv_env.py:2164: 
+> environment\multi_agv_env.py:2165:            task.assigned_agv = ( 
+  environment\multi_agv_env.py:2166:                agv_id 
+  environment\multi_agv_env.py:2167:            ) 
+  environment\multi_agv_env.py:2168: 
+  environment\multi_agv_env.py:2169:            # -------------------------------------------------- 
+  environment\multi_agv_env.py:2180: 
+  environment\multi_agv_env.py:2181:        # ====================================================== 
+> environment\multi_agv_env.py:2182:        # ASSIGN TASKS 
+  environment\multi_agv_env.py:2183:        # ====================================================== 
+  environment\multi_agv_env.py:2184: 
+  environment\multi_agv_env.py:2185:        # ------------------------------------------------------
+  environment\multi_agv_env.py:2186:        # INITIAL WEATHER-DRIVEN THERMAL UPDATE
+  environment\multi_agv_env.py:2187:        # Apply current external weather to every zone before
+> environment\multi_agv_env.py:2188:        # risk-aware task assignment.
+  environment\multi_agv_env.py:2189:        # ------------------------------------------------------
+  environment\multi_agv_env.py:2190:        for zone_id in range(
+  environment\multi_agv_env.py:2191:            1,
+  environment\multi_agv_env.py:2192:            self.warehouse.total_zones + 1,
+  environment\multi_agv_env.py:2195:                zone_id
+  environment\multi_agv_env.py:2196:            )
+> environment\multi_agv_env.py:2197:        self._assign_tasks() 
+  environment\multi_agv_env.py:2198: 
+  environment\multi_agv_env.py:2199:        # ====================================================== 
+  environment\multi_agv_env.py:2200:        # START TASKS 
+  environment\multi_agv_env.py:2201:        # ====================================================== 
+  environment\multi_agv_env.py:2202: 
+> environment\multi_agv_env.py:2203:        self._start_assigned_tasks() 
+  environment\multi_agv_env.py:2204: 
+  environment\multi_agv_env.py:2205:        # ====================================================== 
+  environment\multi_agv_env.py:2206:        # INITIAL OBSERVATION 
+  environment\multi_agv_env.py:2207:        # ====================================================== 
+  environment\multi_agv_env.py:2224:    # ========================================================== 
+  environment\multi_agv_env.py:2225: 
+> environment\multi_agv_env.py:2226:    def step( 
+  environment\multi_agv_env.py:2227:        self, 
+  environment\multi_agv_env.py:2228:        actions, 
+  environment\multi_agv_env.py:2229:    ): 
+  environment\multi_agv_env.py:2230:        """ 
+  environment\multi_agv_env.py:2326: 
+  environment\multi_agv_env.py:2327:        # ------------------------------------------------------ 
+> environment\multi_agv_env.py:2328:        # 1. Same destination 
+  environment\multi_agv_env.py:2329:        # ------------------------------------------------------ 
+  environment\multi_agv_env.py:2330: 
+  environment\multi_agv_env.py:2331:        position_to_agvs = {} 
+  environment\multi_agv_env.py:2332: 
+  environment\multi_agv_env.py:2493:            ] 
+  environment\multi_agv_env.py:2494: 
+> environment\multi_agv_env.py:2495:            risk = self.task_risk.get( 
+  environment\multi_agv_env.py:2496:                agv_id, 
+  environment\multi_agv_env.py:2497:                { 
+  environment\multi_agv_env.py:2498:                    "risk_score": 0.0, 
+> environment\multi_agv_env.py:2499:                    "urgency_score": 0.0, 
+> environment\multi_agv_env.py:2500:                    "priority": "LOW", 
+  environment\multi_agv_env.py:2501:                }, 
+  environment\multi_agv_env.py:2502:            ) 
+  environment\multi_agv_env.py:2503: 
+  environment\multi_agv_env.py:2504:            action = int( 
+  environment\multi_agv_env.py:2519:                    float( 
+  environment\multi_agv_env.py:2520:                        risk.get( 
+> environment\multi_agv_env.py:2521:                            "urgency_score", 
+  environment\multi_agv_env.py:2522:                            0.0, 
+  environment\multi_agv_env.py:2523:                        ) 
+  environment\multi_agv_env.py:2524:                    ) 
+  environment\multi_agv_env.py:2525:                ) 
+  environment\multi_agv_env.py:2589:            # --------------------------------------------------
+  environment\multi_agv_env.py:2590:
+> environment\multi_agv_env.py:2591:            destination_zone_risk = 0.0
+  environment\multi_agv_env.py:2592:
+  environment\multi_agv_env.py:2593:            try:
+> environment\multi_agv_env.py:2594:                destination_zone_id = self.warehouse.get_zone_id(
+  environment\multi_agv_env.py:2595:                    tuple(target)
+  environment\multi_agv_env.py:2596:                )
+  environment\multi_agv_env.py:2597:
+> environment\multi_agv_env.py:2598:                destination_zone_data = self.warehouse.get_all_zone_risks().get(
+> environment\multi_agv_env.py:2599:                    destination_zone_id,
+  environment\multi_agv_env.py:2600:                    {},
+  environment\multi_agv_env.py:2601:                )
+  environment\multi_agv_env.py:2602:
+> environment\multi_agv_env.py:2603:                destination_zone_risk = self._safe_float(
+> environment\multi_agv_env.py:2604:                    destination_zone_data.get(
+  environment\multi_agv_env.py:2605:                        'dynamic_risk',
+  environment\multi_agv_env.py:2606:                        0.0,
+  environment\multi_agv_env.py:2607:                    )
+  environment\multi_agv_env.py:2608:                )
+  environment\multi_agv_env.py:2609:
+  environment\multi_agv_env.py:2610:            except Exception:
+> environment\multi_agv_env.py:2611:                destination_zone_risk = 0.0
+  environment\multi_agv_env.py:2612:
+  environment\multi_agv_env.py:2613:            total_reward -= (
+> environment\multi_agv_env.py:2614:                2.0 * destination_zone_risk
+  environment\multi_agv_env.py:2615:            )
+  environment\multi_agv_env.py:2616:
+  environment\multi_agv_env.py:2617:            # Movement cost 
+  environment\multi_agv_env.py:2618:            # -------------------------------------------------- 
+  environment\multi_agv_env.py:2652:                    float( 
+  environment\multi_agv_env.py:2653:                        risk.get( 
+> environment\multi_agv_env.py:2654:                            "urgency_score", 
+  environment\multi_agv_env.py:2655:                            0.0, 
+  environment\multi_agv_env.py:2656:                        ) 
+  environment\multi_agv_env.py:2657:                    ) 
+  environment\multi_agv_env.py:2658:                    * 
+  environment\multi_agv_env.py:2681:                continue 
+  environment\multi_agv_env.py:2682: 
+> environment\multi_agv_env.py:2683:            agv_id = task.assigned_agv 
+  environment\multi_agv_env.py:2684: 
+  environment\multi_agv_env.py:2685:            if agv_id is None: 
+  environment\multi_agv_env.py:2686:                continue 
+  environment\multi_agv_env.py:2687: 
+  environment\multi_agv_env.py:2697:# --------------------------------------------------
+  environment\multi_agv_env.py:2698:
+> environment\multi_agv_env.py:2699:            if task.status == "PICKED_UP":
+  environment\multi_agv_env.py:2700:
+  environment\multi_agv_env.py:2701:                delivery_target = task.delivery
+  environment\multi_agv_env.py:2702:
+  environment\multi_agv_env.py:2703:                delivery_distance = (
+  environment\multi_agv_env.py:2738:                )
+  environment\multi_agv_env.py:2739: 
+> environment\multi_agv_env.py:2740:            risk = self.task_risk.get( 
+  environment\multi_agv_env.py:2741:                task.task_id, 
+  environment\multi_agv_env.py:2742:                self.current_risk_records.get( 
+  environment\multi_agv_env.py:2743:                    agv_id, 
+  environment\multi_agv_env.py:2744:                    { 
+  environment\multi_agv_env.py:2745:                        "risk_score": 0.0, 
+> environment\multi_agv_env.py:2746:                        "urgency_score": 0.0, 
+> environment\multi_agv_env.py:2747:                        "priority": "LOW", 
+  environment\multi_agv_env.py:2748:                    }, 
+  environment\multi_agv_env.py:2749:                ), 
+  environment\multi_agv_env.py:2750:            ) 
+  environment\multi_agv_env.py:2751: 
+  environment\multi_agv_env.py:2764: 
+  environment\multi_agv_env.py:2765:                # --------------------------------------------------
+> environment\multi_agv_env.py:2766:                # CONDITIONAL RESCUE
+  environment\multi_agv_env.py:2767:                # --------------------------------------------------
+  environment\multi_agv_env.py:2768:                # Normal-risk tasks go directly to delivery.
+> environment\multi_agv_env.py:2769:                # Rescue is activated only for sufficiently
+  environment\multi_agv_env.py:2770:                # high current task risk.
+  environment\multi_agv_env.py:2771:                # --------------------------------------------------
+  environment\multi_agv_env.py:2772:
+> environment\multi_agv_env.py:2773:                current_risk = self._safe_float(getattr(task, "risk_score", risk.get("risk_score", 0.0)))
+  environment\multi_agv_env.py:2774:
+  environment\multi_agv_env.py:2775:                if current_risk >= 0.50:
+> environment\multi_agv_env.py:2776:                    safe_destination = (
+> environment\multi_agv_env.py:2777:                        self._select_safe_destination(
+  environment\multi_agv_env.py:2778:                            task
+  environment\multi_agv_env.py:2779:                        )
+  environment\multi_agv_env.py:2780:                    )
+  environment\multi_agv_env.py:2781:                else:
+> environment\multi_agv_env.py:2782:                    safe_destination = None
+  environment\multi_agv_env.py:2783:
+> environment\multi_agv_env.py:2784:                if safe_destination is not None:
+  environment\multi_agv_env.py:2785:
+  environment\multi_agv_env.py:2786:                    # Preserve original delivery.
+  environment\multi_agv_env.py:2787:                    task.original_delivery = (
+  environment\multi_agv_env.py:2788:                        task.delivery
+  environment\multi_agv_env.py:2789:                    )
+  environment\multi_agv_env.py:2790:
+> environment\multi_agv_env.py:2791:                    task.rescue_destination = (
+  environment\multi_agv_env.py:2792:                        tuple(
+> environment\multi_agv_env.py:2793:                            safe_destination
+  environment\multi_agv_env.py:2794:                        )
+  environment\multi_agv_env.py:2795:                    )
+  environment\multi_agv_env.py:2796:
+> environment\multi_agv_env.py:2797:                    task.in_rescue = True
+  environment\multi_agv_env.py:2798:
+> environment\multi_agv_env.py:2799:                    agv.destination = (
+> environment\multi_agv_env.py:2800:                        task.rescue_destination
+  environment\multi_agv_env.py:2801:                    )
+  environment\multi_agv_env.py:2802:
+  environment\multi_agv_env.py:2803:                else:
+  environment\multi_agv_env.py:2804:
+> environment\multi_agv_env.py:2805:                    task.in_rescue = False
+  environment\multi_agv_env.py:2806:
+> environment\multi_agv_env.py:2807:                    task.rescue_destination = None
+  environment\multi_agv_env.py:2808:
+> environment\multi_agv_env.py:2809:                    agv.destination = (
+  environment\multi_agv_env.py:2810:                        task.delivery
+  environment\multi_agv_env.py:2811:                    )
+  environment\multi_agv_env.py:2812:
+  environment\multi_agv_env.py:2813:                agv.current_task = ( 
+  environment\multi_agv_env.py:2826:                    float( 
+  environment\multi_agv_env.py:2827:                        risk.get( 
+> environment\multi_agv_env.py:2828:                            "urgency_score", 
+  environment\multi_agv_env.py:2829:                            0.0, 
+  environment\multi_agv_env.py:2830:                        ) 
+  environment\multi_agv_env.py:2831:                    ) 
+  environment\multi_agv_env.py:2832:                ) 
+  environment\multi_agv_env.py:2835:                    str( 
+  environment\multi_agv_env.py:2836:                        risk.get( 
+> environment\multi_agv_env.py:2837:                            "priority", 
+  environment\multi_agv_env.py:2838:                            "LOW", 
+  environment\multi_agv_env.py:2839:                        ) 
+  environment\multi_agv_env.py:2840:                    ).upper() 
+  environment\multi_agv_env.py:2841:                    == "HIGH" 
+  environment\multi_agv_env.py:2850:            # Product temperature responds gradually to ambient conditions.
+  environment\multi_agv_env.py:2851:
+> environment\multi_agv_env.py:2852:            if task.status == "PICKED_UP":
+> environment\multi_agv_env.py:2853:                task.picked_up_steps += 1
+  environment\multi_agv_env.py:2854:
+  environment\multi_agv_env.py:2855:                exposure_zone_id = self.warehouse.get_zone_id(
+  environment\multi_agv_env.py:2856:                    tuple(agv.position)
+  environment\multi_agv_env.py:2857:                )
+  environment\multi_agv_env.py:2878:
+  environment\multi_agv_env.py:2879:                was_exposed = (
+> environment\multi_agv_env.py:2880:                    task.thermal_exposure_steps > 0
+  environment\multi_agv_env.py:2881:                )
+  environment\multi_agv_env.py:2882:
+> environment\multi_agv_env.py:2883:                task.thermal_exposure_steps += 1
+  environment\multi_agv_env.py:2884:
+  environment\multi_agv_env.py:2885:                if not was_exposed:
+  environment\multi_agv_env.py:2886:                    self.episode_tasks_with_exposure += 1
+  environment\multi_agv_env.py:2887:
+  environment\multi_agv_env.py:2906:                    degradation_rate = 0.0025 * thermal_stress
+  environment\multi_agv_env.py:2907:                    task.thermal_damage += degradation_rate
+> environment\multi_agv_env.py:2908:                    task.quality_remaining = max(
+  environment\multi_agv_env.py:2909:                        0.0,
+> environment\multi_agv_env.py:2910:                        float(task.quality_remaining) *
+  environment\multi_agv_env.py:2911:                        (2.718281828 ** (-degradation_rate))
+  environment\multi_agv_env.py:2912:                    )
+  environment\multi_agv_env.py:2913:                    task.degradation_occurred = True
+  environment\multi_agv_env.py:2914:
+  environment\multi_agv_env.py:2915:                    if (
+> environment\multi_agv_env.py:2916:                        task.quality_remaining <= 0.20
+  environment\multi_agv_env.py:2917:                        and not task.spoilage_threshold_reached
+  environment\multi_agv_env.py:2918:                    ):
+  environment\multi_agv_env.py:2919:                        task.spoilage_threshold_reached = True
+  environment\multi_agv_env.py:2920:
+  environment\multi_agv_env.py:2927:                        self.episode_tasks_exposure_exceeded += 1
+  environment\multi_agv_env.py:2928:
+> environment\multi_agv_env.py:2929:            # DELIVERY / RESCUE 
+  environment\multi_agv_env.py:2930:            # ================================================== 
+  environment\multi_agv_env.py:2931: 
+  environment\multi_agv_env.py:2932:            target = None 
+  environment\multi_agv_env.py:2933: 
+  environment\multi_agv_env.py:2934:            if getattr( 
+  environment\multi_agv_env.py:2935:                task, 
+> environment\multi_agv_env.py:2936:                "in_rescue", 
+  environment\multi_agv_env.py:2937:                False, 
+  environment\multi_agv_env.py:2938:            ): 
+  environment\multi_agv_env.py:2939: 
+  environment\multi_agv_env.py:2940:                target = getattr( 
+  environment\multi_agv_env.py:2941:                    task, 
+> environment\multi_agv_env.py:2942:                    "rescue_destination", 
+  environment\multi_agv_env.py:2943:                    None, 
+  environment\multi_agv_env.py:2944:                ) 
+  environment\multi_agv_env.py:2945: 
+  environment\multi_agv_env.py:2946:            else: 
+  environment\multi_agv_env.py:2949: 
+  environment\multi_agv_env.py:2950:            if ( 
+> environment\multi_agv_env.py:2951:                task.status == "PICKED_UP" 
+  environment\multi_agv_env.py:2952:                and 
+  environment\multi_agv_env.py:2953:                target is not None 
+  environment\multi_agv_env.py:2954:                and 
+  environment\multi_agv_env.py:2955:                tuple(agv.position) 
+  environment\multi_agv_env.py:2958: 
+  environment\multi_agv_env.py:2959:                # ------------------------------------------------ 
+> environment\multi_agv_env.py:2960:                # Rescue destination reached 
+  environment\multi_agv_env.py:2961:                # ------------------------------------------------ 
+  environment\multi_agv_env.py:2962: 
+  environment\multi_agv_env.py:2963:                if getattr( 
+  environment\multi_agv_env.py:2964:                    task, 
+> environment\multi_agv_env.py:2965:                    "in_rescue", 
+  environment\multi_agv_env.py:2966:                    False, 
+  environment\multi_agv_env.py:2967:                ): 
+  environment\multi_agv_env.py:2968: 
+> environment\multi_agv_env.py:2969:                    task.in_rescue = False 
+  environment\multi_agv_env.py:2970: 
+> environment\multi_agv_env.py:2971:                    task.rescue_destination = None 
+  environment\multi_agv_env.py:2972: 
+> environment\multi_agv_env.py:2973:                    task.rescue_recovered = True
+  environment\multi_agv_env.py:2974:
+> environment\multi_agv_env.py:2975:                    agv.destination = (
+  environment\multi_agv_env.py:2976:                        task.original_delivery
+  environment\multi_agv_env.py:2977:                    )
+  environment\multi_agv_env.py:2978: 
+  environment\multi_agv_env.py:2979:                    agv.status = "MOVING" 
+  environment\multi_agv_env.py:2999:                    float( 
+  environment\multi_agv_env.py:3000:                        risk.get( 
+> environment\multi_agv_env.py:3001:                            "urgency_score", 
+  environment\multi_agv_env.py:3002:                            0.0, 
+  environment\multi_agv_env.py:3003:                        ) 
+  environment\multi_agv_env.py:3004:                    ) 
+  environment\multi_agv_env.py:3005:                ) 
+  environment\multi_agv_env.py:3008:                    str( 
+  environment\multi_agv_env.py:3009:                        risk.get( 
+> environment\multi_agv_env.py:3010:                            "priority", 
+  environment\multi_agv_env.py:3011:                            "LOW", 
+  environment\multi_agv_env.py:3012:                        ) 
+  environment\multi_agv_env.py:3013:                    ).upper() 
+  environment\multi_agv_env.py:3014:                    == "HIGH" 
+  environment\multi_agv_env.py:3020:                # ------------------------------------------------ 
+  environment\multi_agv_env.py:3021: 
+> environment\multi_agv_env.py:3022:                agv.destination = ( 
+  environment\multi_agv_env.py:3023:                    agv_id - 1, 
+  environment\multi_agv_env.py:3024:                    0, 
+  environment\multi_agv_env.py:3025:                ) 
+  environment\multi_agv_env.py:3026: 
+  environment\multi_agv_env.py:3047:                getattr( 
+  environment\multi_agv_env.py:3048:                    agv, 
+> environment\multi_agv_env.py:3049:                    "destination", 
+  environment\multi_agv_env.py:3050:                    None, 
+  environment\multi_agv_env.py:3051:                ) is not None 
+  environment\multi_agv_env.py:3052:                and 
+  environment\multi_agv_env.py:3053:                tuple( 
+  environment\multi_agv_env.py:3055:                ) 
+  environment\multi_agv_env.py:3056:                == tuple( 
+> environment\multi_agv_env.py:3057:                    agv.destination 
+  environment\multi_agv_env.py:3058:                ) 
+  environment\multi_agv_env.py:3059:            ): 
+  environment\multi_agv_env.py:3060: 
+  environment\multi_agv_env.py:3061:                total_reward += 20.0 
+  environment\multi_agv_env.py:3063:                agv.status = "IDLE" 
+  environment\multi_agv_env.py:3064: 
+> environment\multi_agv_env.py:3065:                agv.destination = None 
+  environment\multi_agv_env.py:3066: 
+  environment\multi_agv_env.py:3067:                agv.current_task = None 
+  environment\multi_agv_env.py:3068: 
+  environment\multi_agv_env.py:3069:        # EPISODE STATISTICS 
+  environment\multi_agv_env.py:3456:                )
+  environment\multi_agv_env.py:3457:                
+> environment\multi_agv_env.py:3458:                zone_risk = self._safe_float(
+  environment\multi_agv_env.py:3459:                    zone_data.get(
+  environment\multi_agv_env.py:3460:                        "dynamic_risk",
+  environment\multi_agv_env.py:3461:                        0.0
+  environment\multi_agv_env.py:3462:                    )
+  environment\multi_agv_env.py:3480:                if task is not None: 
+  environment\multi_agv_env.py:3481: 
+> environment\multi_agv_env.py:3482:                    risk = self._safe_float( 
+  environment\multi_agv_env.py:3483:                        getattr( 
+  environment\multi_agv_env.py:3484:                            task, 
+  environment\multi_agv_env.py:3485:                            "risk_score", 
+> environment\multi_agv_env.py:3486:                            self.task_risk.get( 
+  environment\multi_agv_env.py:3487:                                task_id, 
+  environment\multi_agv_env.py:3488:                                {}, 
+  environment\multi_agv_env.py:3489:                            ).get( 
+  environment\multi_agv_env.py:3490:                                "risk_score", 
+  environment\multi_agv_env.py:3494:                    ) 
+  environment\multi_agv_env.py:3495: 
+> environment\multi_agv_env.py:3496:                    urgency = self._safe_float( 
+  environment\multi_agv_env.py:3497:                        getattr( 
+  environment\multi_agv_env.py:3498:                            task, 
+> environment\multi_agv_env.py:3499:                            "urgency_score", 
+> environment\multi_agv_env.py:3500:                            self.task_risk.get( 
+  environment\multi_agv_env.py:3501:                                task_id, 
+  environment\multi_agv_env.py:3502:                                {}, 
+  environment\multi_agv_env.py:3503:                            ).get( 
+> environment\multi_agv_env.py:3504:                                "urgency_score", 
+  environment\multi_agv_env.py:3505:                                0.0, 
+  environment\multi_agv_env.py:3506:                            ), 
+  environment\multi_agv_env.py:3507:                        ) 
+  environment\multi_agv_env.py:3508:                    ) 
+  environment\multi_agv_env.py:3510:                    future_risk_60 = zone_risk 
+  environment\multi_agv_env.py:3511: 
+> environment\multi_agv_env.py:3512:                    temperature_normalized = self._safe_float( 
+  environment\multi_agv_env.py:3513:                        getattr( 
+  environment\multi_agv_env.py:3514:                            task, 
+  environment\multi_agv_env.py:3515:                            "temperature_normalized", 
+> environment\multi_agv_env.py:3516:                            self.task_risk.get( 
+  environment\multi_agv_env.py:3517:                                task_id, 
+  environment\multi_agv_env.py:3518:                                {}, 
+  environment\multi_agv_env.py:3519:                            ).get( 
+  environment\multi_agv_env.py:3520:                                "temperature_normalized", 
+  environment\multi_agv_env.py:3674:        ) 
+  environment\multi_agv_env.py:3675: 
+> environment\multi_agv_env.py:3676:        picked_up = sum( 
+  environment\multi_agv_env.py:3677:            1 
+  environment\multi_agv_env.py:3678:            for task in self.tasks 
+> environment\multi_agv_env.py:3679:            if task.is_picked_up 
+  environment\multi_agv_env.py:3680:        ) 
+  environment\multi_agv_env.py:3681: 
+  environment\multi_agv_env.py:3682:        # ------------------------------------------------------ 
+  environment\multi_agv_env.py:3683:        # Risk records 
+  environment\multi_agv_env.py:3688:        for task in self.tasks: 
+  environment\multi_agv_env.py:3689: 
+> environment\multi_agv_env.py:3690:            record = self.task_risk.get( 
+  environment\multi_agv_env.py:3691:                task.task_id, 
+  environment\multi_agv_env.py:3692:                None, 
+  environment\multi_agv_env.py:3693:            ) 
+  environment\multi_agv_env.py:3694: 
+  environment\multi_agv_env.py:3698:                    getattr( 
+  environment\multi_agv_env.py:3699:                        task, 
+> environment\multi_agv_env.py:3700:                        "assigned_agv", 
+  environment\multi_agv_env.py:3701:                        None, 
+  environment\multi_agv_env.py:3702:                    ), 
+  environment\multi_agv_env.py:3703:                    {}, 
+  environment\multi_agv_env.py:3704:                ) 
+  environment\multi_agv_env.py:3717:            if str( 
+  environment\multi_agv_env.py:3718:                risk.get( 
+> environment\multi_agv_env.py:3719:                    "priority", 
+  environment\multi_agv_env.py:3720:                    "LOW", 
+  environment\multi_agv_env.py:3721:                ) 
+  environment\multi_agv_env.py:3722:            ).upper() 
+  environment\multi_agv_env.py:3723:            == "HIGH" 
+  environment\multi_agv_env.py:3735:                np.mean( 
+  environment\multi_agv_env.py:3736:                    [ 
+> environment\multi_agv_env.py:3737:                        self._safe_float( 
+  environment\multi_agv_env.py:3738:                            risk.get( 
+  environment\multi_agv_env.py:3739:                                "risk_score", 
+  environment\multi_agv_env.py:3740:                                0.0, 
+  environment\multi_agv_env.py:3741:                            ) 
+  environment\multi_agv_env.py:3757:                np.mean( 
+  environment\multi_agv_env.py:3758:                    [ 
+> environment\multi_agv_env.py:3759:                        self._safe_float( 
+  environment\multi_agv_env.py:3760:                            risk.get( 
+> environment\multi_agv_env.py:3761:                                "urgency_score", 
+  environment\multi_agv_env.py:3762:                                0.0, 
+  environment\multi_agv_env.py:3763:                            ) 
+  environment\multi_agv_env.py:3764:                        ) 
+  environment\multi_agv_env.py:3765:                        for risk in task_records 
+  environment\multi_agv_env.py:3780:        for task in risk_order: 
+  environment\multi_agv_env.py:3781: 
+> environment\multi_agv_env.py:3782:            assigned_agv = getattr( 
+  environment\multi_agv_env.py:3783:                task, 
+> environment\multi_agv_env.py:3784:                "assigned_agv", 
+  environment\multi_agv_env.py:3785:                None, 
+  environment\multi_agv_env.py:3786:            ) 
+  environment\multi_agv_env.py:3787: 
+> environment\multi_agv_env.py:3788:            record = self.task_risk.get( 
+  environment\multi_agv_env.py:3789:                task.task_id, 
+  environment\multi_agv_env.py:3790:                None, 
+  environment\multi_agv_env.py:3791:            ) 
+  environment\multi_agv_env.py:3792: 
+  environment\multi_agv_env.py:3794:                record is None 
+  environment\multi_agv_env.py:3795:                and 
+> environment\multi_agv_env.py:3796:                assigned_agv is not None 
+  environment\multi_agv_env.py:3797:            ): 
+  environment\multi_agv_env.py:3798: 
+> environment\multi_agv_env.py:3799:                record = self.task_risk.get( 
+> environment\multi_agv_env.py:3800:                    assigned_agv, 
+  environment\multi_agv_env.py:3801:                    None, 
+  environment\multi_agv_env.py:3802:                ) 
+  environment\multi_agv_env.py:3803: 
+  environment\multi_agv_env.py:3804:            if record is None: 
+  environment\multi_agv_env.py:3815:                        ( 
+  environment\multi_agv_env.py:3816:                            int( 
+> environment\multi_agv_env.py:3817:                                assigned_agv 
+  environment\multi_agv_env.py:3818:                            ) 
+> environment\multi_agv_env.py:3819:                            if assigned_agv is not None 
+  environment\multi_agv_env.py:3820:                            else None 
+  environment\multi_agv_env.py:3821:                        ), 
+  environment\multi_agv_env.py:3822: 
+  environment\multi_agv_env.py:3823:                    "status": 
+  environment\multi_agv_env.py:3830:                        ), 
+  environment\multi_agv_env.py:3831: 
+> environment\multi_agv_env.py:3832:                    "priority": 
+  environment\multi_agv_env.py:3833:                        str( 
+  environment\multi_agv_env.py:3834:                            getattr( 
+  environment\multi_agv_env.py:3835:                                task, 
+> environment\multi_agv_env.py:3836:                                "priority", 
+  environment\multi_agv_env.py:3837:                                record.get( 
+> environment\multi_agv_env.py:3838:                                    "priority", 
+  environment\multi_agv_env.py:3839:                                    "LOW", 
+  environment\multi_agv_env.py:3840:                                ), 
+  environment\multi_agv_env.py:3841:                            ) 
+  environment\multi_agv_env.py:3842:                        ).upper(), 
+  environment\multi_agv_env.py:3843: 
+  environment\multi_agv_env.py:3844:                    "risk_score": 
+> environment\multi_agv_env.py:3845:                        self._safe_float( 
+  environment\multi_agv_env.py:3846:                            getattr( 
+  environment\multi_agv_env.py:3847:                                task, 
+  environment\multi_agv_env.py:3848:                                "risk_score", 
+  environment\multi_agv_env.py:3849:                                record.get( 
+  environment\multi_agv_env.py:3854:                        ), 
+  environment\multi_agv_env.py:3855: 
+> environment\multi_agv_env.py:3856:                    "urgency_score": 
+> environment\multi_agv_env.py:3857:                        self._safe_float( 
+  environment\multi_agv_env.py:3858:                            getattr( 
+  environment\multi_agv_env.py:3859:                                task, 
+> environment\multi_agv_env.py:3860:                                "urgency_score", 
+  environment\multi_agv_env.py:3861:                                record.get( 
+> environment\multi_agv_env.py:3862:                                    "urgency_score", 
+  environment\multi_agv_env.py:3863:                                    0.0, 
+  environment\multi_agv_env.py:3864:                                ), 
+  environment\multi_agv_env.py:3865:                            ) 
+  environment\multi_agv_env.py:3866:                        ), 
+  environment\multi_agv_env.py:3867: 
+  environment\multi_agv_env.py:3868:                    "future_risk_60": 
+> environment\multi_agv_env.py:3869:                        self._safe_float( 
+  environment\multi_agv_env.py:3870:                            record.get( 
+  environment\multi_agv_env.py:3871:                                "future_risk_60", 
+  environment\multi_agv_env.py:3872:                                record.get( 
+  environment\multi_agv_env.py:3873:                                    "y_next_60_R2", 
+  environment\multi_agv_env.py:3878: 
+  environment\multi_agv_env.py:3879:                    "eta_60": 
+> environment\multi_agv_env.py:3880:                        self._safe_float( 
+  environment\multi_agv_env.py:3881:                            record.get( 
+  environment\multi_agv_env.py:3882:                                "eta_60", 
+  environment\multi_agv_env.py:3883:                                record.get( 
+  environment\multi_agv_env.py:3884:                                    "eta_to_R2_60", 
+  environment\multi_agv_env.py:3888:                        ), 
+  environment\multi_agv_env.py:3889: 
+> environment\multi_agv_env.py:3890:                    "rset_minutes": 
+> environment\multi_agv_env.py:3891:                        self._safe_float( 
+  environment\multi_agv_env.py:3892:                            record.get( 
+> environment\multi_agv_env.py:3893:                                "rset_minutes", 
+  environment\multi_agv_env.py:3894:                                60.0, 
+  environment\multi_agv_env.py:3895:                            ) 
+  environment\multi_agv_env.py:3896:                        ), 
+  environment\multi_agv_env.py:3897:                } 
+  environment\multi_agv_env.py:3925:                completed, 
+  environment\multi_agv_env.py:3926: 
+> environment\multi_agv_env.py:3927:            "picked_up_tasks": 
+> environment\multi_agv_env.py:3928:                picked_up, 
+  environment\multi_agv_env.py:3929: 
+  environment\multi_agv_env.py:3930:            # -------------------------------------------------- 
+  environment\multi_agv_env.py:3931:            # Collision statistics 
+  environment\multi_agv_env.py:3932:            # -------------------------------------------------- 
+  environment\multi_agv_env.py:4002:                            ), 
+  environment\multi_agv_env.py:4003: 
+> environment\multi_agv_env.py:4004:                        "urgency_score": 
+  environment\multi_agv_env.py:4005:                            getattr( 
+  environment\multi_agv_env.py:4006:                                task, 
+> environment\multi_agv_env.py:4007:                                "urgency_score", 
+  environment\multi_agv_env.py:4008:                                0.0, 
+  environment\multi_agv_env.py:4009:                            ), 
+  environment\multi_agv_env.py:4010: 
+> environment\multi_agv_env.py:4011:                        "priority": 
+  environment\multi_agv_env.py:4012:                            getattr( 
+  environment\multi_agv_env.py:4013:                                task, 
+> environment\multi_agv_env.py:4014:                                "priority", 
+  environment\multi_agv_env.py:4015:                                "LOW", 
+  environment\multi_agv_env.py:4016:                            ), 
+  environment\multi_agv_env.py:4017: 
+  environment\multi_agv_env.py:4018:                        "weather": 
+  environment\multi_agv_env.py:4051:                            ), 
+  environment\multi_agv_env.py:4052: 
+> environment\multi_agv_env.py:4053:                        "rset_minutes": 
+  environment\multi_agv_env.py:4054:                            getattr( 
+  environment\multi_agv_env.py:4055:                                task, 
+> environment\multi_agv_env.py:4056:                                "rset_minutes", 
+  environment\multi_agv_env.py:4057:                                60.0, 
+  environment\multi_agv_env.py:4058:                            ), 
+  environment\multi_agv_env.py:4059:                    } 
+  environment\multi_agv_env.py:4060:                    for task in self.tasks 
+  environment\multi_agv_env.py:4115:                getattr( 
+  environment\multi_agv_env.py:4116:                    task, 
+> environment\multi_agv_env.py:4117:                    "in_rescue", 
+  environment\multi_agv_env.py:4118:                    False, 
+  environment\multi_agv_env.py:4119:                ) 
+  environment\multi_agv_env.py:4120:                and 
+  environment\multi_agv_env.py:4121:                getattr( 
+  environment\multi_agv_env.py:4122:                    task, 
+> environment\multi_agv_env.py:4123:                    "rescue_destination", 
+  environment\multi_agv_env.py:4124:                    None, 
+  environment\multi_agv_env.py:4125:                ) is not None 
+  environment\multi_agv_env.py:4126:            ): 
+  environment\multi_agv_env.py:4127: 
+  environment\multi_agv_env.py:4128:                active_goals.add( 
+  environment\multi_agv_env.py:4129:                    tuple( 
+> environment\multi_agv_env.py:4130:                        task.rescue_destination 
+  environment\multi_agv_env.py:4131:                    ) 
+  environment\multi_agv_env.py:4132:                ) 
+  environment\multi_agv_env.py:4133: 
+  environment\multi_agv_env.py:4134:            elif task.status == "IN_PROGRESS": 
+  environment\multi_agv_env.py:4138:                ) 
+  environment\multi_agv_env.py:4139: 
+> environment\multi_agv_env.py:4140:            elif task.status == "PICKED_UP": 
+  environment\multi_agv_env.py:4141: 
+  environment\multi_agv_env.py:4142:                active_goals.add( 
+  environment\multi_agv_env.py:4143:                    tuple(task.delivery) 
+  environment\multi_agv_env.py:4144:                ) 
+
+
+
+=== QLEARNING ===
+
+### C:\Users\ganga\Downloads\ColdChain_MultiAGV_RL\algorithms\q_learning.py
+
+"""
+Tabular Q-learning agent.
+
+This is the base reinforcement-learning algorithm.
+
+The agent uses:
+
+    Q(s, a)
+
+with:
+
+    epsilon-greedy exploration
+    learning rate
+    discount factor
+    temporal-difference update
+"""
+
+from __future__ import annotations
+
+
+import pickle
+import random
+from collections import defaultdict
+
+import numpy as np
+
+
+class QLearningAgent:
+
+    def __init__(
+        self,
+        action_count: int = 5,
+        learning_rate: float = 0.1,
+        discount_factor: float = 0.95,
+        epsilon: float = 1.0,
+        epsilon_min: float = 0.05,
+        epsilon_decay: float = 0.995,
+        seed: int = 42,
+        
+    ):
+        self.state_decimals = 2
+        
+        if action_count <= 0:
+            raise ValueError(
+                "action_count must be positive."
+            )
+
+        self.action_count = int(
+            action_count
+        )
+
+        self.learning_rate = float(
+            learning_rate
+        )
+
+        self.discount_factor = float(
+            discount_factor
+        )
+
+        self.epsilon = float(
+            epsilon
+        )
+
+        self.epsilon_min = float(
+            epsilon_min
+        )
+
+        self.epsilon_decay = float(
+            epsilon_decay
+        )
+
+        self.random = random.Random(
+            seed
+        )
+
+        # --------------------------------------------------
+        # Q-table
+        # --------------------------------------------------
+
+        self.q_table = defaultdict(
+            self._new_q_values
+        )
+
+        self.training_steps = 0
+
+    # ==================================================
+    # DEFAULT Q VALUES
+    # ==================================================
+
+    def _new_q_values(self):
+
+        return np.zeros(
+            self.action_count,
+            dtype=np.float64,
+        )
+
+    # ==================================================
+    # STATE KEY
+    # ==================================================
+
+    def state_key(
+        self,
+        state,
+    ):
+
+        if isinstance(
+            state,
+            (np.ndarray, list, tuple),
+        ):
+
+            values = np.asarray(
+                state,
+                dtype=np.float64,
+            )
+
+            return tuple(
+                np.round(
+                    values,
+                    self.state_decimals,
+                ).tolist()
+            )
+
+        return state
+
+    # ==================================================
+    # ACTION SELECTION
+    # ==================================================
+
+    def select_action(
+        self,
+        state,
+        training=True,
+    ):
+
+        key = self.state_key(
+            state
+        )
+
+        # --------------------------------------------------
+        # Exploration
+        # --------------------------------------------------
+
+        if (
+            training
+            and
+            self.random.random()
+            <
+            self.epsilon
+        ):
+
+            return self.random.randrange(
+                self.action_count
+            )
+
+        # --------------------------------------------------
+        # Exploitation
+        # --------------------------------------------------
+
+        q_values = self.q_table[
+            key
+        ]
+
+        max_value = np.max(
+            q_values
+        )
+
+        best_actions = np.flatnonzero(
+            np.isclose(
+                q_values,
+                max_value,
+            )
+        )
+
+        return int(
+            self.random.choice(
+                best_actions.tolist()
+            )
+        )
+
+    # ==================================================
+    # Q UPDATE
+    # ==================================================
+
+    def update(
+        self,
+        state,
+        action,
+        reward,
+        next_state,
+        terminated,
+    ):
+
+        state_key = self.state_key(
+            state
+        )
+
+        next_state_key = self.state_key(
+            next_state
+        )
+
+        action = int(
+            action
+        )
+
+        if not (
+            0
+            <=
+            action
+            <
+            self.action_count
+        ):
+
+            raise ValueError(
+                f"Invalid action {action}."
+            )
+
+        current_q = self.q_table[
+            state_key
+        ][
+            action
+        ]
+
+        # --------------------------------------------------
+        # Bellman target
+        # --------------------------------------------------
+
+        if terminated:
+
+            target = float(
+                reward
+            )
+
+        else:
+
+            next_max = np.max(
+                self.q_table[
+                    next_state_key
+                ]
+            )
+
+            target = (
+                float(reward)
+                +
+                self.discount_factor
+                *
+                next_max
+            )
+
+        # --------------------------------------------------
+        # Temporal-difference update
+        # --------------------------------------------------
+
+        td_error = (
+            target
+            -
+            current_q
+        )
+
+        self.q_table[
+            state_key
+        ][
+            action
+        ] += (
+            self.learning_rate
+            *
+            td_error
+        )
+
+        self.training_steps += 1
+
+        return float(
+            td_error
+        )
+
+    # ==================================================
+    # EPSILON DECAY
+    # ==================================================
+
+    def decay_epsilon(self):
+
+        self.epsilon = max(
+            self.epsilon_min,
+            self.epsilon
+            *
+            self.epsilon_decay,
+        )
+
+        return self.epsilon
+
+    # ==================================================
+    # GREEDY ACTION
+    # ==================================================
+
+    def greedy_action(
+        self,
+        state,
+    ):
+
+        return self.select_action(
+            state,
+            training=False,
+        )
+
+    # ==================================================
+    # TABLE SIZE
+    # ==================================================
+
+    @property
+    def state_count(self):
+
+        return len(
+            self.q_table
+        )
+
+    # ==================================================
+    # RESET
+    # ==================================================
+
+    def clear(self):
+
+        self.q_table.clear()
+
+        self.training_steps = 0
+
+        # ==================================================
+    # SAVE
+    # ==================================================
+
+    def save(
+        self,
+        filepath,
+    ):
+
+        data = {
+            "q_table": dict(
+                self.q_table
+            ),
+            "action_count":
+                self.action_count,
+            "learning_rate":
+                self.learning_rate,
+            "discount_factor":
+                self.discount_factor,
+            "epsilon":
+                self.epsilon,
+            "epsilon_min":
+                self.epsilon_min,
+            "epsilon_decay":
+                self.epsilon_decay,
+            "training_steps":
+                self.training_steps,
+        }
+
+        with open(
+            filepath,
+            "wb",
+        ) as file:
+
+            pickle.dump(
+                data,
+                file,
+            )
+
+    # ==================================================
+    # LOAD
+    # ==================================================
+
+    def load(
+        self,
+        filepath,
+    ):
+
+        with open(
+            filepath,
+            "rb",
+        ) as file:
+
+            data = pickle.load(
+                file
+            )
+
+        self.action_count = int(
+            data["action_count"]
+        )
+
+        self.learning_rate = float(
+            data["learning_rate"]
+        )
+
+        self.discount_factor = float(
+            data["discount_factor"]
+        )
+
+        self.epsilon = float(
+            data["epsilon"]
+        )
+
+        self.epsilon_min = float(
+            data["epsilon_min"]
+        )
+
+        self.epsilon_decay = float(
+            data["epsilon_decay"]
+        )
+
+        self.training_steps = int(
+            data["training_steps"]
+        )
+
+        self.q_table.clear()
+
+        for state, values in (
+            data["q_table"].items()
+        ):
+
+            self.q_table[state] = np.asarray(
+                values,
+                dtype=np.float64,
+            )
+
+    
+__all__ = [
+    "QLearningAgent",
+]
+
+
+### C:\Users\ganga\Downloads\ColdChain_MultiAGV_RL\algorithms\q_learning_BEFORE_STATE_DISCRETIZATION.py
+
+"""
+Tabular Q-learning agent.
+
+This is the base reinforcement-learning algorithm.
+
+The agent uses:
+
+    Q(s, a)
+
+with:
+
+    epsilon-greedy exploration
+    learning rate
+    discount factor
+    temporal-difference update
+"""
+
+from __future__ import annotations
+
+
+import pickle
+import random
+from collections import defaultdict
+
+import numpy as np
+
+
+class QLearningAgent:
+
+    def __init__(
+        self,
+        action_count: int = 5,
+        learning_rate: float = 0.1,
+        discount_factor: float = 0.95,
+        epsilon: float = 1.0,
+        epsilon_min: float = 0.05,
+        epsilon_decay: float = 0.995,
+        seed: int = 42,
+    ):
+
+        if action_count <= 0:
+            raise ValueError(
+                "action_count must be positive."
+            )
+
+        self.action_count = int(
+            action_count
+        )
+
+        self.learning_rate = float(
+            learning_rate
+        )
+
+        self.discount_factor = float(
+            discount_factor
+        )
+
+        self.epsilon = float(
+            epsilon
+        )
+
+        self.epsilon_min = float(
+            epsilon_min
+        )
+
+        self.epsilon_decay = float(
+            epsilon_decay
+        )
+
+        self.random = random.Random(
+            seed
+        )
+
+        # --------------------------------------------------
+        # Q-table
+        # --------------------------------------------------
+
+        self.q_table = defaultdict(
+            self._new_q_values
+        )
+
+        self.training_steps = 0
+
+    # ==================================================
+    # DEFAULT Q VALUES
+    # ==================================================
+
+    def _new_q_values(self):
+
+        return np.zeros(
+            self.action_count,
+            dtype=np.float64,
+        )
+
+    # ==================================================
+    # STATE KEY
+    # ==================================================
+
+    def state_key(
+        self,
+        state,
+    ):
+
+        if isinstance(
+            state,
+            np.ndarray,
+        ):
+
+            return tuple(
+                np.round(
+                    state.astype(
+                        np.float64
+                    ),
+                    6,
+                ).tolist()
+            )
+
+        if isinstance(
+            state,
+            (list, tuple),
+        ):
+
+            return tuple(
+                state
+            )
+
+        return state
+
+    # ==================================================
+    # ACTION SELECTION
+    # ==================================================
+
+    def select_action(
+        self,
+        state,
+        training=True,
+    ):
+
+        key = self.state_key(
+            state
+        )
+
+        # --------------------------------------------------
+        # Exploration
+        # --------------------------------------------------
+
+        if (
+            training
+            and
+            self.random.random()
+            <
+            self.epsilon
+        ):
+
+            return self.random.randrange(
+                self.action_count
+            )
+
+        # --------------------------------------------------
+        # Exploitation
+        # --------------------------------------------------
+
+        q_values = self.q_table[
+            key
+        ]
+
+        max_value = np.max(
+            q_values
+        )
+
+        best_actions = np.flatnonzero(
+            np.isclose(
+                q_values,
+                max_value,
+            )
+        )
+
+        return int(
+            self.random.choice(
+                best_actions.tolist()
+            )
+        )
+
+    # ==================================================
+    # Q UPDATE
+    # ==================================================
+
+    def update(
+        self,
+        state,
+        action,
+        reward,
+        next_state,
+        terminated,
+    ):
+
+        state_key = self.state_key(
+            state
+        )
+
+        next_state_key = self.state_key(
+            next_state
+        )
+
+        action = int(
+            action
+        )
+
+        if not (
+            0
+            <=
+            action
+            <
+            self.action_count
+        ):
+
+            raise ValueError(
+                f"Invalid action {action}."
+            )
+
+        current_q = self.q_table[
+            state_key
+        ][
+            action
+        ]
+
+        # --------------------------------------------------
+        # Bellman target
+        # --------------------------------------------------
+
+        if terminated:
+
+            target = float(
+                reward
+            )
+
+        else:
+
+            next_max = np.max(
+                self.q_table[
+                    next_state_key
+                ]
+            )
+
+            target = (
+                float(reward)
+                +
+                self.discount_factor
+                *
+                next_max
+            )
+
+        # --------------------------------------------------
+        # Temporal-difference update
+        # --------------------------------------------------
+
+        td_error = (
+            target
+            -
+            current_q
+        )
+
+        self.q_table[
+            state_key
+        ][
+            action
+        ] += (
+            self.learning_rate
+            *
+            td_error
+        )
+
+        self.training_steps += 1
+
+        return float(
+            td_error
+        )
+
+    # ==================================================
+    # EPSILON DECAY
+    # ==================================================
+
+    def decay_epsilon(self):
+
+        self.epsilon = max(
+            self.epsilon_min,
+            self.epsilon
+            *
+            self.epsilon_decay,
+        )
+
+        return self.epsilon
+
+    # ==================================================
+    # GREEDY ACTION
+    # ==================================================
+
+    def greedy_action(
+        self,
+        state,
+    ):
+
+        return self.select_action(
+            state,
+            training=False,
+        )
+
+    # ==================================================
+    # TABLE SIZE
+    # ==================================================
+
+    @property
+    def state_count(self):
+
+        return len(
+            self.q_table
+        )
+
+    # ==================================================
+    # RESET
+    # ==================================================
+
+    def clear(self):
+
+        self.q_table.clear()
+
+        self.training_steps = 0
+
+        # ==================================================
+    # SAVE
+    # ==================================================
+
+    def save(
+        self,
+        filepath,
+    ):
+
+        data = {
+            "q_table": dict(
+                self.q_table
+            ),
+            "action_count":
+                self.action_count,
+            "learning_rate":
+                self.learning_rate,
+            "discount_factor":
+                self.discount_factor,
+            "epsilon":
+                self.epsilon,
+            "epsilon_min":
+                self.epsilon_min,
+            "epsilon_decay":
+                self.epsilon_decay,
+            "training_steps":
+                self.training_steps,
+        }
+
+        with open(
+            filepath,
+            "wb",
+        ) as file:
+
+            pickle.dump(
+                data,
+                file,
+            )
+
+    # ==================================================
+    # LOAD
+    # ==================================================
+
+    def load(
+        self,
+        filepath,
+    ):
+
+        with open(
+            filepath,
+            "rb",
+        ) as file:
+
+            data = pickle.load(
+                file
+            )
+
+        self.action_count = int(
+            data["action_count"]
+        )
+
+        self.learning_rate = float(
+            data["learning_rate"]
+        )
+
+        self.discount_factor = float(
+            data["discount_factor"]
+        )
+
+        self.epsilon = float(
+            data["epsilon"]
+        )
+
+        self.epsilon_min = float(
+            data["epsilon_min"]
+        )
+
+        self.epsilon_decay = float(
+            data["epsilon_decay"]
+        )
+
+        self.training_steps = int(
+            data["training_steps"]
+        )
+
+        self.q_table.clear()
+
+        for state, values in (
+            data["q_table"].items()
+        ):
+
+            self.q_table[state] = np.asarray(
+                values,
+                dtype=np.float64,
+            )
+
+    
+__all__ = [
+    "QLearningAgent",
+]
+
+
+### C:\Users\ganga\Downloads\ColdChain_MultiAGV_RL\algorithms\q_learning_trainer.py
+
+"""
+Training loop for the base multi-AGV Q-learning system.
+"""
+
+from __future__ import annotations
+
+import numpy as np
+
+from algorithms.q_learning import QLearningAgent
+from environment.multi_agv_env import MultiAGVEnv
+
+
+class QLearningTrainer:
+
+    def __init__(
+        self,
+        episodes: int = 100,
+        max_steps: int = 500,
+        num_agvs: int = 3,
+        seed: int = 42,
+    ):
+
+        self.episodes = int(
+            episodes
+        )
+
+        self.max_steps = int(
+            max_steps
+        )
+
+        self.num_agvs = int(
+            num_agvs
+        )
+
+        self.seed = int(
+            seed
+        )
+
+        # --------------------------------------------------
+        # Environment
+        # --------------------------------------------------
+
+        self.env = MultiAGVEnv(
+            width=20,
+            height=20,
+            num_agvs=self.num_agvs,
+            max_steps=self.max_steps,
+            risk_aware_assignment=True,
+        )
+
+        # --------------------------------------------------
+        # One Q-learning agent per AGV
+        # --------------------------------------------------
+
+        self.agents = [
+            QLearningAgent(
+                action_count=5,
+                learning_rate=0.1,
+                discount_factor=0.95,
+                epsilon=1.0,
+                epsilon_min=0.05,
+                epsilon_decay=0.995,
+                seed=self.seed + agv_id,
+            )
+            for agv_id in range(
+                self.num_agvs
+            )
+        ]
+
+        self.episode_rewards = []
+
+        self.episode_lengths = []
+
+        self.episode_completions = []
+
+    # ==================================================
+    # TRAIN ONE EPISODE
+    # ==================================================
+
+    def train_episode(
+        self,
+        episode: int,
+    ):
+
+        states, _ = self.env.reset(
+            seed=self.seed + episode
+        )
+
+        total_reward = 0.0
+
+        completed_tasks = 0
+
+        for step in range(
+            self.max_steps
+        ):
+
+            # --------------------------------------------------
+            # Select action independently for every AGV
+            # --------------------------------------------------
+
+            actions = np.array(
+                [
+                    agent.select_action(
+                        self._get_agv_state(
+                            states,
+                            agv_id,
+                        ),
+                        training=True,
+                    )
+                    for agv_id, agent
+                    in enumerate(
+                        self.agents
+                    )
+                ],
+                dtype=np.int64,
+            )
+
+            (
+                next_states,
+                reward,
+                terminated,
+                truncated,
+                info,
+            ) = self.env.step(
+                actions
+            )
+
+            # --------------------------------------------------
+            # Update each Q learner
+            # --------------------------------------------------
+
+            for agv_id, agent in enumerate(
+                self.agents
+            ):
+
+                state = self._get_agv_state(
+                    states,
+                    agv_id,
+                )
+
+                next_state = self._get_agv_state(
+                    next_states,
+                    agv_id,
+                )
+
+                agent.update(
+                    state=state,
+                    action=int(
+                        actions[agv_id]
+                    ),
+                    reward=reward,
+                    next_state=next_state,
+                    terminated=(
+                        terminated
+                        or truncated
+                    ),
+                )
+
+            states = next_states
+
+            total_reward += float(
+                reward
+            )
+
+            completed_tasks = int(
+                info.get(
+                    "completed_tasks",
+                    0,
+                )
+            )
+
+            if terminated or truncated:
+
+                break
+
+        # --------------------------------------------------
+        # Exploration decay
+        # --------------------------------------------------
+
+        for agent in self.agents:
+
+            agent.decay_epsilon()
+
+        self.episode_rewards.append(
+            total_reward
+        )
+
+        self.episode_lengths.append(
+            step + 1
+        )
+
+        self.episode_completions.append(
+            completed_tasks
+        )
+
+        return {
+            "reward":
+                total_reward,
+
+            "steps":
+                step + 1,
+
+            "completed":
+                completed_tasks,
+
+            "epsilon":
+                self.agents[0].epsilon,
+        }
+
+    # ==================================================
+    # EVALUATE
+    # ==================================================
+    def evaluate(
+        self,
+        episodes=20,
+        max_steps=None,
+        seed=None,
+    ):
+        max_steps = int(max_steps or self.max_steps)
+        base_seed = self.seed if seed is None else int(seed)
+        rewards = []
+        lengths = []
+        completions = []
+        collisions = []
+
+        for episode in range(int(episodes)):
+            states, _ = self.env.reset(seed=base_seed + episode)
+            total_reward = 0.0
+            completed = 0
+            collision_count = 0
+
+            for step in range(max_steps):
+                actions = np.array([
+                    agent.select_action(
+                        self._get_agv_state(states, agv_id),
+                        training=False,
+                    )
+                    for agv_id, agent in enumerate(self.agents)
+                ], dtype=np.int64)
+
+                next_states, reward, terminated, truncated, info = self.env.step(actions)
+                total_reward += float(reward)
+                completed = int(info.get('completed_tasks', completed))
+                collision_count = int(info.get('episode_collision_count', info.get('collision_count', collision_count)))
+                states = next_states
+
+                if terminated or truncated:
+                    break
+
+            rewards.append(total_reward)
+            lengths.append(step + 1)
+            completions.append(completed)
+            collisions.append(collision_count)
+
+        return {
+            'episodes': int(episodes),
+            'max_steps': max_steps,
+            'average_reward': float(np.mean(rewards)) if rewards else 0.0,
+            'average_steps': float(np.mean(lengths)) if lengths else 0.0,
+            'average_completed': float(np.mean(completions)) if completions else 0.0,
+            'completion_rate': float(100.0 * np.mean(np.asarray(completions) > 0)) if completions else 0.0,
+            'average_collisions': float(np.mean(collisions)) if collisions else 0.0,
+            'rewards': rewards,
+            'steps': lengths,
+            'completions': completions,
+            'collisions': collisions,
+        }
+
+    # ==================================================
+    # TRAIN
+    # ==================================================
+
+    def train(
+        self,
+    ):
+
+        for episode in range(
+            1,
+            self.episodes + 1,
+        ):
+
+            result = self.train_episode(
+                episode
+            )
+
+            if (
+                episode == 1
+                or
+                episode % 10 == 0
+                or
+                episode == self.episodes
+            ):
+
+                print(
+                    f"Episode "
+                    f"{episode:04d}/"
+                    f"{self.episodes:04d} | "
+                    f"Reward="
+                    f"{result['reward']:.2f} | "
+                    f"Steps="
+                    f"{result['steps']} | "
+                    f"Completed="
+                    f"{result['completed']} | "
+                    f"Epsilon="
+                    f"{result['epsilon']:.4f}"
+                )
+
+        return {
+            "rewards":
+                self.episode_rewards,
+
+            "steps":
+                self.episode_lengths,
+
+            "completions":
+                self.episode_completions,
+        }
+
+    # ==================================================
+    # AGV STATE
+    # ==================================================
+
+        # ==================================================
+    # MULTI-AGV STATE
+    # ==================================================
+
+    def _get_agv_state(
+        self,
+        state,
+        agv_id,
+    ):
+
+        state = np.asarray(
+            state,
+            dtype=np.float32,
+        )
+
+        # --------------------------------------------------
+        # Own AGV state
+        # --------------------------------------------------
+
+        own_start = (
+            agv_id * 8
+        )
+
+        own_end = (
+            own_start + 8
+        )
+
+        own_state = state[
+            own_start:own_end
+        ]
+
+        # --------------------------------------------------
+        # Other AGV relative states
+        # --------------------------------------------------
+
+        other_features = []
+
+        for other_id in range(
+            self.num_agvs
+        ):
+
+            if other_id == agv_id:
+
+                continue
+
+            other_start = (
+                other_id * 8
+            )
+
+            other_end = (
+                other_start + 8
+            )
+
+            other_state = state[
+                other_start:other_end
+            ]
+
+            relative_state = (
+                other_state
+                -
+                own_state
+            )
+
+            other_features.extend(
+                relative_state.tolist()
+            )
+
+        # --------------------------------------------------
+        # Combined state
+        # --------------------------------------------------
+
+        combined_state = np.concatenate(
+            [
+                own_state,
+                np.asarray(
+                    other_features,
+                    dtype=np.float32,
+                ),
+            ]
+        )
+
+        return tuple(
+            np.round(
+                combined_state,
+                6,
+            )
+        )
+
+__all__ = [
+    "QLearningTrainer",
+]
+
+
+
+
+### C:\Users\ganga\Downloads\ColdChain_MultiAGV_RL\algorithms\q_learning_trainer_BEFORE_COLDCHAIN_STATE_FIX.py
+
+"""
+Training loop for the base multi-AGV Q-learning system.
+"""
+
+from __future__ import annotations
+
+import numpy as np
+
+from algorithms.q_learning import QLearningAgent
+from environment.multi_agv_env import MultiAGVEnv
+
+
+class QLearningTrainer:
+
+    def __init__(
+        self,
+        episodes: int = 100,
+        max_steps: int = 500,
+        num_agvs: int = 3,
+        seed: int = 42,
+    ):
+
+        self.episodes = int(
+            episodes
+        )
+
+        self.max_steps = int(
+            max_steps
+        )
+
+        self.num_agvs = int(
+            num_agvs
+        )
+
+        self.seed = int(
+            seed
+        )
+
+        # --------------------------------------------------
+        # Environment
+        # --------------------------------------------------
+
+        self.env = MultiAGVEnv(
+            width=20,
+            height=20,
+            num_agvs=self.num_agvs,
+            max_steps=self.max_steps,
+            risk_aware_assignment=True,
+        )
+
+        # --------------------------------------------------
+        # One Q-learning agent per AGV
+        # --------------------------------------------------
+
+        self.agents = [
+            QLearningAgent(
+                action_count=5,
+                learning_rate=0.1,
+                discount_factor=0.95,
+                epsilon=1.0,
+                epsilon_min=0.05,
+                epsilon_decay=0.995,
+                seed=self.seed + agv_id,
+            )
+            for agv_id in range(
+                self.num_agvs
+            )
+        ]
+
+        self.episode_rewards = []
+
+        self.episode_lengths = []
+
+        self.episode_completions = []
+
+    # ==================================================
+    # TRAIN ONE EPISODE
+    # ==================================================
+
+    def train_episode(
+        self,
+        episode: int,
+    ):
+
+        states, _ = self.env.reset(
+            seed=self.seed + episode
+        )
+
+        total_reward = 0.0
+
+        completed_tasks = 0
+
+        for step in range(
+            self.max_steps
+        ):
+
+            # --------------------------------------------------
+            # Select action independently for every AGV
+            # --------------------------------------------------
+
+            actions = np.array(
+                [
+                    agent.select_action(
+                        self._get_agv_state(
+                            states,
+                            agv_id,
+                        ),
+                        training=True,
+                    )
+                    for agv_id, agent
+                    in enumerate(
+                        self.agents
+                    )
+                ],
+                dtype=np.int64,
+            )
+
+            (
+                next_states,
+                reward,
+                terminated,
+                truncated,
+                info,
+            ) = self.env.step(
+                actions
+            )
+
+            # --------------------------------------------------
+            # Update each Q learner
+            # --------------------------------------------------
+
+            for agv_id, agent in enumerate(
+                self.agents
+            ):
+
+                state = self._get_agv_state(
+                    states,
+                    agv_id,
+                )
+
+                next_state = self._get_agv_state(
+                    next_states,
+                    agv_id,
+                )
+
+                agent.update(
+                    state=state,
+                    action=int(
+                        actions[agv_id]
+                    ),
+                    reward=reward,
+                    next_state=next_state,
+                    terminated=(
+                        terminated
+                        or truncated
+                    ),
+                )
+
+            states = next_states
+
+            total_reward += float(
+                reward
+            )
+
+            completed_tasks = int(
+                info.get(
+                    "completed_tasks",
+                    0,
+                )
+            )
+
+            if terminated or truncated:
+
+                break
+
+        # --------------------------------------------------
+        # Exploration decay
+        # --------------------------------------------------
+
+        for agent in self.agents:
+
+            agent.decay_epsilon()
+
+        self.episode_rewards.append(
+            total_reward
+        )
+
+        self.episode_lengths.append(
+            step + 1
+        )
+
+        self.episode_completions.append(
+            completed_tasks
+        )
+
+        return {
+            "reward":
+                total_reward,
+
+            "steps":
+                step + 1,
+
+            "completed":
+                completed_tasks,
+
+            "epsilon":
+                self.agents[0].epsilon,
+        }
+
+    # ==================================================
+    # TRAIN
+    # ==================================================
+
+    def train(
+        self,
+    ):
+
+        for episode in range(
+            1,
+            self.episodes + 1,
+        ):
+
+            result = self.train_episode(
+                episode
+            )
+
+            if (
+                episode == 1
+                or
+                episode % 10 == 0
+                or
+                episode == self.episodes
+            ):
+
+                print(
+                    f"Episode "
+                    f"{episode:04d}/"
+                    f"{self.episodes:04d} | "
+                    f"Reward="
+                    f"{result['reward']:.2f} | "
+                    f"Steps="
+                    f"{result['steps']} | "
+                    f"Completed="
+                    f"{result['completed']} | "
+                    f"Epsilon="
+                    f"{result['epsilon']:.4f}"
+                )
+
+        return {
+            "rewards":
+                self.episode_rewards,
+
+            "steps":
+                self.episode_lengths,
+
+            "completions":
+                self.episode_completions,
+        }
+
+    # ==================================================
+    # AGV STATE
+    # ==================================================
+
+        # ==================================================
+    # MULTI-AGV STATE
+    # ==================================================
+
+    def _get_agv_state(
+        self,
+        state,
+        agv_id,
+    ):
+
+        state = np.asarray(
+            state,
+            dtype=np.float32,
+        )
+
+        # --------------------------------------------------
+        # Own AGV state
+        # --------------------------------------------------
+
+        own_start = (
+            agv_id * 8
+        )
+
+        own_end = (
+            own_start + 4
+        )
+
+        own_state = state[
+            own_start:own_end
+        ]
+
+        # --------------------------------------------------
+        # Other AGV relative states
+        # --------------------------------------------------
+
+        other_features = []
+
+        for other_id in range(
+            self.num_agvs
+        ):
+
+            if other_id == agv_id:
+
+                continue
+
+            other_start = (
+                other_id * 8
+            )
+
+            other_end = (
+                other_start + 4
+            )
+
+            other_state = state[
+                other_start:other_end
+            ]
+
+            relative_state = (
+                other_state
+                -
+                own_state
+            )
+
+            other_features.extend(
+                relative_state.tolist()
+            )
+
+        # --------------------------------------------------
+        # Combined state
+        # --------------------------------------------------
+
+        combined_state = np.concatenate(
+            [
+                own_state,
+                np.asarray(
+                    other_features,
+                    dtype=np.float32,
+                ),
+            ]
+        )
+
+        return tuple(
+            np.round(
+                combined_state,
+                6,
+            )
+        )
+
+__all__ = [
+    "QLearningTrainer",
+]
+
+
+
+### C:\Users\ganga\Downloads\ColdChain_MultiAGV_RL\algorithms\q_learning_trainer_BEFORE_EVALUATION.py
+
+"""
+Training loop for the base multi-AGV Q-learning system.
+"""
+
+from __future__ import annotations
+
+import numpy as np
+
+from algorithms.q_learning import QLearningAgent
+from environment.multi_agv_env import MultiAGVEnv
+
+
+class QLearningTrainer:
+
+    def __init__(
+        self,
+        episodes: int = 100,
+        max_steps: int = 500,
+        num_agvs: int = 3,
+        seed: int = 42,
+    ):
+
+        self.episodes = int(
+            episodes
+        )
+
+        self.max_steps = int(
+            max_steps
+        )
+
+        self.num_agvs = int(
+            num_agvs
+        )
+
+        self.seed = int(
+            seed
+        )
+
+        # --------------------------------------------------
+        # Environment
+        # --------------------------------------------------
+
+        self.env = MultiAGVEnv(
+            width=20,
+            height=20,
+            num_agvs=self.num_agvs,
+            max_steps=self.max_steps,
+            risk_aware_assignment=True,
+        )
+
+        # --------------------------------------------------
+        # One Q-learning agent per AGV
+        # --------------------------------------------------
+
+        self.agents = [
+            QLearningAgent(
+                action_count=5,
+                learning_rate=0.1,
+                discount_factor=0.95,
+                epsilon=1.0,
+                epsilon_min=0.05,
+                epsilon_decay=0.995,
+                seed=self.seed + agv_id,
+            )
+            for agv_id in range(
+                self.num_agvs
+            )
+        ]
+
+        self.episode_rewards = []
+
+        self.episode_lengths = []
+
+        self.episode_completions = []
+
+    # ==================================================
+    # TRAIN ONE EPISODE
+    # ==================================================
+
+    def train_episode(
+        self,
+        episode: int,
+    ):
+
+        states, _ = self.env.reset(
+            seed=self.seed + episode
+        )
+
+        total_reward = 0.0
+
+        completed_tasks = 0
+
+        for step in range(
+            self.max_steps
+        ):
+
+            # --------------------------------------------------
+            # Select action independently for every AGV
+            # --------------------------------------------------
+
+            actions = np.array(
+                [
+                    agent.select_action(
+                        self._get_agv_state(
+                            states,
+                            agv_id,
+                        ),
+                        training=True,
+                    )
+                    for agv_id, agent
+                    in enumerate(
+                        self.agents
+                    )
+                ],
+                dtype=np.int64,
+            )
+
+            (
+                next_states,
+                reward,
+                terminated,
+                truncated,
+                info,
+            ) = self.env.step(
+                actions
+            )
+
+            # --------------------------------------------------
+            # Update each Q learner
+            # --------------------------------------------------
+
+            for agv_id, agent in enumerate(
+                self.agents
+            ):
+
+                state = self._get_agv_state(
+                    states,
+                    agv_id,
+                )
+
+                next_state = self._get_agv_state(
+                    next_states,
+                    agv_id,
+                )
+
+                agent.update(
+                    state=state,
+                    action=int(
+                        actions[agv_id]
+                    ),
+                    reward=reward,
+                    next_state=next_state,
+                    terminated=(
+                        terminated
+                        or truncated
+                    ),
+                )
+
+            states = next_states
+
+            total_reward += float(
+                reward
+            )
+
+            completed_tasks = int(
+                info.get(
+                    "completed_tasks",
+                    0,
+                )
+            )
+
+            if terminated or truncated:
+
+                break
+
+        # --------------------------------------------------
+        # Exploration decay
+        # --------------------------------------------------
+
+        for agent in self.agents:
+
+            agent.decay_epsilon()
+
+        self.episode_rewards.append(
+            total_reward
+        )
+
+        self.episode_lengths.append(
+            step + 1
+        )
+
+        self.episode_completions.append(
+            completed_tasks
+        )
+
+        return {
+            "reward":
+                total_reward,
+
+            "steps":
+                step + 1,
+
+            "completed":
+                completed_tasks,
+
+            "epsilon":
+                self.agents[0].epsilon,
+        }
+
+    # ==================================================
+    # TRAIN
+    # ==================================================
+
+    def train(
+        self,
+    ):
+
+        for episode in range(
+            1,
+            self.episodes + 1,
+        ):
+
+            result = self.train_episode(
+                episode
+            )
+
+            if (
+                episode == 1
+                or
+                episode % 10 == 0
+                or
+                episode == self.episodes
+            ):
+
+                print(
+                    f"Episode "
+                    f"{episode:04d}/"
+                    f"{self.episodes:04d} | "
+                    f"Reward="
+                    f"{result['reward']:.2f} | "
+                    f"Steps="
+                    f"{result['steps']} | "
+                    f"Completed="
+                    f"{result['completed']} | "
+                    f"Epsilon="
+                    f"{result['epsilon']:.4f}"
+                )
+
+        return {
+            "rewards":
+                self.episode_rewards,
+
+            "steps":
+                self.episode_lengths,
+
+            "completions":
+                self.episode_completions,
+        }
+
+    # ==================================================
+    # AGV STATE
+    # ==================================================
+
+        # ==================================================
+    # MULTI-AGV STATE
+    # ==================================================
+
+    def _get_agv_state(
+        self,
+        state,
+        agv_id,
+    ):
+
+        state = np.asarray(
+            state,
+            dtype=np.float32,
+        )
+
+        # --------------------------------------------------
+        # Own AGV state
+        # --------------------------------------------------
+
+        own_start = (
+            agv_id * 8
+        )
+
+        own_end = (
+            own_start + 8
+        )
+
+        own_state = state[
+            own_start:own_end
+        ]
+
+        # --------------------------------------------------
+        # Other AGV relative states
+        # --------------------------------------------------
+
+        other_features = []
+
+        for other_id in range(
+            self.num_agvs
+        ):
+
+            if other_id == agv_id:
+
+                continue
+
+            other_start = (
+                other_id * 8
+            )
+
+            other_end = (
+                other_start + 8
+            )
+
+            other_state = state[
+                other_start:other_end
+            ]
+
+            relative_state = (
+                other_state
+                -
+                own_state
+            )
+
+            other_features.extend(
+                relative_state.tolist()
+            )
+
+        # --------------------------------------------------
+        # Combined state
+        # --------------------------------------------------
+
+        combined_state = np.concatenate(
+            [
+                own_state,
+                np.asarray(
+                    other_features,
+                    dtype=np.float32,
+                ),
+            ]
+        )
+
+        return tuple(
+            np.round(
+                combined_state,
+                6,
+            )
+        )
+
+__all__ = [
+    "QLearningTrainer",
+]
+
+
+
+
+### C:\Users\ganga\Downloads\ColdChain_MultiAGV_RL\algorithms\train_q_learning.py
+
+"""
+Run base-paper Q-learning training.
+"""
+
+from algorithms.q_learning_trainer import (
+    QLearningTrainer,
+)
+
+
+def main():
+
+    trainer = QLearningTrainer(
+        episodes=100,
+        max_steps=500,
+        num_agvs=3,
+        seed=42,
+    )
+
+    results = trainer.train()
+
+    rewards = results["rewards"]
+
+    completions = results[
+        "completions"
+    ]
+
+    print()
+    print("=" * 60)
+    print("Q-LEARNING TRAINING COMPLETE")
+    print("=" * 60)
+
+    if rewards:
+
+        print(
+            "Average reward:",
+            sum(rewards) / len(rewards),
+        )
+
+        print(
+            "Best reward:",
+            max(rewards),
+        )
+
+    if completions:
+
+        print(
+            "Average completed tasks:",
+            sum(completions)
+            /
+            len(completions),
+        )
+
+
+if __name__ == "__main__":
+    main()
+    
+
+=== TRAINER ===
+"""
+Training loop for the base multi-AGV Q-learning system.
+"""
+
+from __future__ import annotations
+
+import numpy as np
+
+from algorithms.q_learning import QLearningAgent
+from environment.multi_agv_env import MultiAGVEnv
+
+
+class QLearningTrainer:
+
+    def __init__(
+        self,
+        episodes: int = 100,
+        max_steps: int = 500,
+        num_agvs: int = 3,
+        seed: int = 42,
+    ):
+
+        self.episodes = int(
+            episodes
+        )
+
+        self.max_steps = int(
+            max_steps
+        )
+
+        self.num_agvs = int(
+            num_agvs
+        )
+
+        self.seed = int(
+            seed
+        )
+
+        # --------------------------------------------------
+        # Environment
+        # --------------------------------------------------
+
+        self.env = MultiAGVEnv(
+            width=20,
+            height=20,
+            num_agvs=self.num_agvs,
+            max_steps=self.max_steps,
+            risk_aware_assignment=True,
+        )
+
+        # --------------------------------------------------
+        # One Q-learning agent per AGV
+        # --------------------------------------------------
+
+        self.agents = [
+            QLearningAgent(
+                action_count=5,
+                learning_rate=0.1,
+                discount_factor=0.95,
+                epsilon=1.0,
+                epsilon_min=0.05,
+                epsilon_decay=0.995,
+                seed=self.seed + agv_id,
+            )
+            for agv_id in range(
+                self.num_agvs
+            )
+        ]
+
+        self.episode_rewards = []
+
+        self.episode_lengths = []
+
+        self.episode_completions = []
+
+    # ==================================================
+    # TRAIN ONE EPISODE
+    # ==================================================
+
+    def train_episode(
+        self,
+        episode: int,
+    ):
+
+        states, _ = self.env.reset(
+            seed=self.seed + episode
+        )
+
+        total_reward = 0.0
+
+        completed_tasks = 0
+
+        for step in range(
+            self.max_steps
+        ):
+
+            # --------------------------------------------------
+            # Select action independently for every AGV
+            # --------------------------------------------------
+
+            actions = np.array(
+                [
+                    agent.select_action(
+                        self._get_agv_state(
+                            states,
+                            agv_id,
+                        ),
+                        training=True,
+                    )
+                    for agv_id, agent
+                    in enumerate(
+                        self.agents
+                    )
+                ],
+                dtype=np.int64,
+            )
+
+            (
+                next_states,
+                reward,
+                terminated,
+                truncated,
+                info,
+            ) = self.env.step(
+                actions
+            )
+
+            # --------------------------------------------------
+            # Update each Q learner
+            # --------------------------------------------------
+
+            for agv_id, agent in enumerate(
+                self.agents
+            ):
+
+                state = self._get_agv_state(
+                    states,
+                    agv_id,
+                )
+
+                next_state = self._get_agv_state(
+                    next_states,
+                    agv_id,
+                )
+
+                agent.update(
+                    state=state,
+                    action=int(
+                        actions[agv_id]
+                    ),
+                    reward=reward,
+                    next_state=next_state,
+                    terminated=(
+                        terminated
+                        or truncated
+                    ),
+                )
+
+            states = next_states
+
+            total_reward += float(
+                reward
+            )
+
+            completed_tasks = int(
+                info.get(
+                    "completed_tasks",
+                    0,
+                )
+            )
+
+            if terminated or truncated:
+
+                break
+
+        # --------------------------------------------------
+        # Exploration decay
+        # --------------------------------------------------
+
+        for agent in self.agents:
+
+            agent.decay_epsilon()
+
+        self.episode_rewards.append(
+            total_reward
+        )
+
+        self.episode_lengths.append(
+            step + 1
+        )
+
+        self.episode_completions.append(
+            completed_tasks
+        )
+
+        return {
+            "reward":
+                total_reward,
+
+            "steps":
+                step + 1,
+
+            "completed":
+                completed_tasks,
+
+            "epsilon":
+                self.agents[0].epsilon,
+        }
+
+    # ==================================================
+    # EVALUATE
+    # ==================================================
+    def evaluate(
+        self,
+        episodes=20,
+        max_steps=None,
+        seed=None,
+    ):
+        max_steps = int(max_steps or self.max_steps)
+        base_seed = self.seed if seed is None else int(seed)
+        rewards = []
+        lengths = []
+        completions = []
+        collisions = []
+
+        for episode in range(int(episodes)):
+            states, _ = self.env.reset(seed=base_seed + episode)
+            total_reward = 0.0
+            completed = 0
+            collision_count = 0
+
+            for step in range(max_steps):
+                actions = np.array([
+                    agent.select_action(
+                        self._get_agv_state(states, agv_id),
+                        training=False,
+                    )
+                    for agv_id, agent in enumerate(self.agents)
+                ], dtype=np.int64)
+
+                next_states, reward, terminated, truncated, info = self.env.step(actions)
+                total_reward += float(reward)
+                completed = int(info.get('completed_tasks', completed))
+                collision_count = int(info.get('episode_collision_count', info.get('collision_count', collision_count)))
+                states = next_states
+
+                if terminated or truncated:
+                    break
+
+            rewards.append(total_reward)
+            lengths.append(step + 1)
+            completions.append(completed)
+            collisions.append(collision_count)
+
+        return {
+            'episodes': int(episodes),
+            'max_steps': max_steps,
+            'average_reward': float(np.mean(rewards)) if rewards else 0.0,
+            'average_steps': float(np.mean(lengths)) if lengths else 0.0,
+            'average_completed': float(np.mean(completions)) if completions else 0.0,
+            'completion_rate': float(100.0 * np.mean(np.asarray(completions) > 0)) if completions else 0.0,
+            'average_collisions': float(np.mean(collisions)) if collisions else 0.0,
+            'rewards': rewards,
+            'steps': lengths,
+            'completions': completions,
+            'collisions': collisions,
+        }
+
+    # ==================================================
+    # TRAIN
+    # ==================================================
+
+    def train(
+        self,
+    ):
+
+        for episode in range(
+            1,
+            self.episodes + 1,
+        ):
+
+            result = self.train_episode(
+                episode
+            )
+
+            if (
+                episode == 1
+                or
+                episode % 10 == 0
+                or
+                episode == self.episodes
+            ):
+
+                print(
+                    f"Episode "
+                    f"{episode:04d}/"
+                    f"{self.episodes:04d} | "
+                    f"Reward="
+                    f"{result['reward']:.2f} | "
+                    f"Steps="
+                    f"{result['steps']} | "
+                    f"Completed="
+                    f"{result['completed']} | "
+                    f"Epsilon="
+                    f"{result['epsilon']:.4f}"
+                )
+
+        return {
+            "rewards":
+                self.episode_rewards,
+
+            "steps":
+                self.episode_lengths,
+
+            "completions":
+                self.episode_completions,
+        }
+
+    # ==================================================
+    # AGV STATE
+    # ==================================================
+
+        # ==================================================
+    # MULTI-AGV STATE
+    # ==================================================
+
+    def _get_agv_state(
+        self,
+        state,
+        agv_id,
+    ):
+
+        state = np.asarray(
+            state,
+            dtype=np.float32,
+        )
+
+        # --------------------------------------------------
+        # Own AGV state
+        # --------------------------------------------------
+
+        own_start = (
+            agv_id * 8
+        )
+
+        own_end = (
+            own_start + 8
+        )
+
+        own_state = state[
+            own_start:own_end
+        ]
+
+        # --------------------------------------------------
+        # Other AGV relative states
+        # --------------------------------------------------
+
+        other_features = []
+
+        for other_id in range(
+            self.num_agvs
+        ):
+
+            if other_id == agv_id:
+
+                continue
+
+            other_start = (
+                other_id * 8
+            )
+
+            other_end = (
+                other_start + 8
+            )
+
+            other_state = state[
+                other_start:other_end
+            ]
+
+            relative_state = (
+                other_state
+                -
+                own_state
+            )
+
+            other_features.extend(
+                relative_state.tolist()
+            )
+
+        # --------------------------------------------------
+        # Combined state
+        # --------------------------------------------------
+
+        combined_state = np.concatenate(
+            [
+                own_state,
+                np.asarray(
+                    other_features,
+                    dtype=np.float32,
+                ),
+            ]
+        )
+
+        return tuple(
+            np.round(
+                combined_state,
+                6,
+            )
+        )
+
+__all__ = [
+    "QLearningTrainer",
+]
+
+
+

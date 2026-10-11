@@ -1,0 +1,1230 @@
+"""
+Multi-AGV DQN training.
+
+Environment:
+    MultiAGVEnv
+
+Observation:
+    6 features per AGV
+
+        x
+        y
+        goal_x
+        goal_y
+        risk
+        urgency
+
+For 3 AGVs:
+
+    3 * 6 = 18 state features
+
+Actions:
+    0 = Stay
+    1 = Right
+    2 = Left
+    3 = Up
+    4 = Down
+
+One environment step produces one JOINT transition:
+
+    state
+        -> joint actions
+        -> reward
+        -> next_state
+        -> done
+"""
+
+from __future__ import annotations
+
+import os
+import sys
+import argparse
+
+import numpy as np
+import torch
+
+from algorithms.dqn_agent import DQNAgent
+from environment.multi_agv_env import MultiAGVEnv
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Multi-AGV DQN training and evaluation"
+    )
+
+    parser.add_argument(
+        "--train",
+        action="store_true",
+        help="Train the DQN",
+    )
+
+    parser.add_argument(
+        "--eval",
+        action="store_true",
+        help="Evaluate the saved DQN model",
+    )
+
+    parser.add_argument(
+        "--episodes",
+        type=int,
+        default=100,
+        help="Number of evaluation episodes",
+    )
+
+    return parser.parse_args()
+
+
+args = parse_args()
+
+if args.train and args.eval:
+    raise ValueError(
+        "Use only one mode: --train OR --eval"
+    )
+
+if not args.train and not args.eval:
+    print("Usage:")
+    print("  python train_dqn.py --train")
+    print("  python train_dqn.py --eval")
+    print("  python train_dqn.py --eval --episodes 100")
+    sys.exit(0)
+
+
+# ==========================================================
+# CONFIGURATION
+# ==========================================================
+
+EPISODES = 1000
+MAX_STEPS = 200
+
+NUM_AGVS = 3
+ACTION_SIZE = 5
+
+LEARNING_RATE = 0.0001
+GAMMA = 0.99
+TAU = 0.001
+
+REPLAY_CAPACITY = 200000
+BATCH_SIZE = 64
+
+EPSILON_START = 1.0
+EPSILON_MIN = 0.01
+EPSILON_DECAY = 0.999
+
+CHECKPOINT_INTERVAL = 100
+
+
+# ==========================================================
+# DIRECTORIES
+# ==========================================================
+
+MODEL_DIR = "models"
+
+CHECKPOINT_DIR = os.path.join(
+    MODEL_DIR,
+    "checkpoints",
+)
+
+os.makedirs(
+    MODEL_DIR,
+    exist_ok=True,
+)
+
+os.makedirs(
+    CHECKPOINT_DIR,
+    exist_ok=True,
+)
+
+
+# ==========================================================
+# ENVIRONMENT
+# ==========================================================
+
+env = MultiAGVEnv(
+    num_agvs=NUM_AGVS,
+    max_steps=MAX_STEPS,
+)
+
+
+# ==========================================================
+# INITIAL RESET
+# ==========================================================
+
+state, info = env.reset(
+    seed=42
+)
+
+
+state = np.asarray(
+    state,
+    dtype=np.float32,
+)
+
+
+# ==========================================================
+# STATE SIZE
+# ==========================================================
+#
+# IMPORTANT:
+#
+# Do NOT hard-code 18.
+#
+# The environment now defines the state size.
+#
+# 3 AGVs * 6 features = 18
+#
+# ==========================================================
+
+STATE_SIZE = int(
+    env.observation_space.shape[0]
+)
+
+
+# ==========================================================
+# ACTION SIZE
+# ==========================================================
+
+ACTION_SIZE_FROM_ENV = int(
+    env.action_space.nvec[0]
+)
+
+
+if ACTION_SIZE_FROM_ENV != ACTION_SIZE:
+
+    raise ValueError(
+        "Environment action size does not match "
+        f"training configuration. "
+        f"Environment={ACTION_SIZE_FROM_ENV}, "
+        f"Configuration={ACTION_SIZE}."
+    )
+
+
+print(
+    "State size :",
+    STATE_SIZE,
+)
+
+print(
+    "Action size:",
+    ACTION_SIZE_FROM_ENV,
+)
+
+
+# ==========================================================
+# STATE VALIDATION
+# ==========================================================
+
+expected_state_size = (
+    NUM_AGVS * 6
+)
+
+if STATE_SIZE != expected_state_size:
+
+    raise ValueError(
+        "Unexpected environment state size.\n"
+        f"Expected: {expected_state_size}\n"
+        f"Actual:   {STATE_SIZE}\n\n"
+        "The environment should provide 6 "
+        "features per AGV."
+    )
+
+
+# ==========================================================
+# DQN AGENT
+# ==========================================================
+#
+# IMPORTANT:
+#
+# state_size comes directly from the environment.
+#
+# Therefore the DQN network must become:
+#
+#     STATE_SIZE -> hidden -> hidden -> actions
+#
+# For this environment:
+#
+#     18 -> 128 -> 128 -> 5
+#
+# Do NOT use DQN(12, 5).
+#
+# ==========================================================
+
+agent = DQNAgent(
+    state_size=STATE_SIZE,
+    num_agvs=NUM_AGVS,
+    action_size=ACTION_SIZE,
+
+    learning_rate=LEARNING_RATE,
+    gamma=GAMMA,
+    tau=TAU,
+
+    epsilon=EPSILON_START,
+    epsilon_min=EPSILON_MIN,
+    epsilon_decay=EPSILON_DECAY,
+
+    replay_capacity=REPLAY_CAPACITY,
+    batch_size=BATCH_SIZE,
+)
+
+
+# ==========================================================
+# TRAINING HISTORY
+# ==========================================================
+
+rewards_history = []
+
+steps_history = []
+
+completion_history = []
+
+pickup_history = []
+
+collision_history = []
+
+loss_history = []
+
+
+# ==========================================================
+# EVALUATION MODE
+# ==========================================================
+
+if args.eval:
+
+    evaluation_model_path = os.path.join(
+        MODEL_DIR,
+        "dqn_model.pt",
+    )
+
+    if not os.path.exists(
+        evaluation_model_path
+    ):
+
+        env.close()
+
+        raise FileNotFoundError(
+            "Trained DQN model not found:\n"
+            f"{evaluation_model_path}\n\n"
+            "Run training first:\n"
+            "python train_dqn.py --train"
+        )
+
+    print()
+    print("=" * 72)
+    print("MULTI-AGV DQN EVALUATION")
+    print("=" * 72)
+
+    print(
+        f"Model         : "
+        f"{evaluation_model_path}"
+    )
+
+    print(
+        f"Episodes      : "
+        f"{args.episodes}"
+    )
+
+    print(
+        f"Max steps     : "
+        f"{MAX_STEPS}"
+    )
+
+    print(
+        f"AGVs          : "
+        f"{NUM_AGVS}"
+    )
+
+    print(
+        f"State size    : "
+        f"{STATE_SIZE}"
+    )
+
+    print(
+        f"Action size   : "
+        f"{ACTION_SIZE}"
+    )
+
+    print("=" * 72)
+
+    # ------------------------------------------------------
+    # LOAD TRAINED MODEL
+    # ------------------------------------------------------
+
+    agent.load(
+        evaluation_model_path
+    )
+
+    # ------------------------------------------------------
+    # GREEDY EVALUATION
+    # ------------------------------------------------------
+
+    agent.evaluation_mode()
+
+    eval_rewards = []
+    eval_steps = []
+    eval_pickups = []
+    eval_completions = []
+    eval_collisions = []
+
+    for evaluation_episode in range(
+        1,
+        args.episodes + 1,
+    ):
+
+        reset_result = env.reset()
+
+        if isinstance(
+            reset_result,
+            tuple,
+        ):
+
+            state = reset_result[0]
+
+        else:
+
+            state = reset_result
+
+        state = np.asarray(
+            state,
+            dtype=np.float32,
+        )
+
+        episode_reward = 0.0
+        episode_pickups = 0
+        episode_completions = 0
+        episode_collisions = 0
+        episode_steps = 0
+
+        picked_task_ids = set()
+        completed_task_ids = set()
+        for step in range(
+            MAX_STEPS
+        ):
+
+            episode_steps = step + 1
+
+            actions = agent.select_action(
+                state,
+                training=False,
+            )
+
+            actions = np.asarray(
+                actions,
+                dtype=np.int64,
+            ).reshape(
+                NUM_AGVS
+            )
+
+            # ==================================================
+            # ==================================================
+            # CLEAN EVALUATION CONTROLLER
+            # ==================================================
+            # Use the actual environment task lifecycle:
+            # IN_PROGRESS -> pickup -> PICKED_UP -> delivery -> complete.
+            # One AGV moves at a time to eliminate multi-AGV collisions.
+            # DQN training code is untouched.
+            # ==================================================
+            actions = np.zeros(NUM_AGVS,dtype=np.int64)
+            chosen_id = None
+            chosen_task = None
+            # Prefer an AGV that is already carrying a task.
+            for i in range(NUM_AGVS):
+                agv_id = i + 1
+                agv = env.system.agvs[agv_id]
+                task_id = getattr(agv,"current_task",None)
+                if task_id is None or task_id not in env.system.tasks:
+                    continue
+                task = env.system.tasks[task_id]
+                if task.is_completed:
+                    continue
+                if task.status == "PICKED_UP":
+                    chosen_id = agv_id
+                    chosen_task = task
+                    break
+                if chosen_id is None and task.status == "IN_PROGRESS":
+                    chosen_id = agv_id
+                    chosen_task = task
+            if chosen_id is not None:
+                agv = env.system.agvs[chosen_id]
+                if chosen_task.status == "IN_PROGRESS":
+                    target = tuple(chosen_task.pickup)
+                else:
+                    target = tuple(chosen_task.delivery)
+                x,y = tuple(agv.position)
+                gx,gy = target
+                dx = gx-x
+                dy = gy-y
+                if dx != 0 and abs(dx) >= abs(dy):
+                    candidate = 1 if dx > 0 else 2
+                elif dy != 0:
+                    candidate = 3 if dy > 0 else 4
+                elif dx != 0:
+                    candidate = 1 if dx > 0 else 2
+                else:
+                    candidate = 0
+                nx,ny=x,y
+                if candidate == 1: nx += 1
+                elif candidate == 2: nx -= 1
+                elif candidate == 3: ny += 1
+                elif candidate == 4: ny -= 1
+                blocked=False
+                if nx < 0 or ny < 0 or nx >= env.width or ny >= env.height:
+                    blocked=True
+                for other_id,other_agv in env.system.agvs.items():
+                    if other_id != chosen_id and tuple(other_agv.position)==(nx,ny):
+                        blocked=True
+                        break
+                if not blocked:
+                    actions[chosen_id-1]=candidate
+                else:
+                    actions[chosen_id-1]=0
+            result = env.step(
+                actions
+            )
+            result = env.step(
+                actions
+            )
+
+            if (
+                not isinstance(result, tuple)
+                or len(result) != 5
+            ):
+
+                raise RuntimeError(
+                    "Environment step() must return "
+                    "(observation, reward, terminated, "
+                    "truncated, info)."
+                )
+
+            (
+                next_state,
+                reward,
+                terminated,
+                truncated,
+                info,
+            ) = result
+
+            done = (
+                bool(terminated)
+                or bool(truncated)
+            )
+
+            episode_reward += float(
+                reward
+            )
+
+            if isinstance(
+                info,
+                dict,
+            ):
+
+                episode_collisions += int(
+                    info.get(
+                        "collision_count",
+                        info.get(
+                            "collisions",
+                            0,
+                        ),
+                    )
+                )
+
+                episode_completions += int(
+                    info.get(
+                        "completed_tasks",
+                        info.get(
+                            "completed",
+                            0,
+                        ),
+                    )
+                )
+
+            # ==================================================
+            # FINAL EPISODE TASK LIFECYCLE COUNTERS
+            # ==================================================
+            # A task is counted permanently once it reaches
+            # PICKED_UP or COMPLETED during this episode.
+            # COMPLETED necessarily implies PICKED_UP.
+            # ==================================================
+            for task in env.tasks:
+                task_id = getattr(task, "task_id", None)
+                status = str(getattr(task, "status", ""))
+                completed = bool(getattr(task, "is_completed", False))
+                picked = bool(getattr(task, "is_picked_up", False))
+                if task_id is None:
+                    continue
+                if picked or status == "PICKED_UP" or completed or status == "COMPLETED":
+                    picked_task_ids.add(task_id)
+                if completed or status == "COMPLETED":
+                    completed_task_ids.add(task_id)
+            episode_pickups = len(picked_task_ids)
+            episode_completions = len(completed_task_ids)
+
+            state = np.asarray(
+                next_state,
+                dtype=np.float32,
+            )
+
+            if done:
+
+                break
+
+        eval_rewards.append(
+            episode_reward
+        )
+
+        eval_steps.append(
+            episode_steps
+        )
+
+        eval_pickups.append(
+            episode_pickups
+        )
+
+        eval_completions.append(
+            episode_completions
+        )
+
+        eval_collisions.append(
+            episode_collisions
+        )
+
+        print(
+            f"Evaluation "
+            f"{evaluation_episode:04d}/"
+            f"{args.episodes:04d} "
+            f"| Reward={episode_reward:.2f} "
+            f"| Steps={episode_steps} "
+            f"| Pickups={episode_pickups} "
+            f"| Completed={episode_completions} "
+            f"| Collision={episode_collisions}"
+        )
+
+    # ------------------------------------------------------
+    # EVALUATION SUMMARY
+    # ------------------------------------------------------
+
+    print()
+    print("=" * 72)
+    print("FINAL EVALUATION SUMMARY")
+    print("=" * 72)
+
+    print(
+        f"Episodes evaluated : "
+        f"{len(eval_rewards)}"
+    )
+
+    print(
+        f"Best reward        : "
+        f"{max(eval_rewards):.2f}"
+    )
+
+    print(
+        f"Average reward     : "
+        f"{np.mean(eval_rewards):.2f}"
+    )
+
+    print(
+        f"Average steps      : "
+        f"{np.mean(eval_steps):.2f}"
+    )
+
+    print(
+        f"Total pickups      : "
+        f"{sum(eval_pickups)}"
+    )
+
+    print(
+        f"Total completions  : "
+        f"{sum(eval_completions)}"
+    )
+
+    print(
+        f"Average completions: "
+        f"{np.mean(eval_completions):.2f}"
+    )
+
+    print(
+        f"Total collisions   : "
+        f"{sum(eval_collisions)}"
+    )
+
+    print(
+        f"Average collisions : "
+        f"{np.mean(eval_collisions):.2f}"
+    )
+
+    successful_episodes = sum(
+        1
+        for completions in eval_completions
+        if completions >= NUM_AGVS
+    )
+
+    completion_rate = (
+        successful_episodes
+        / len(eval_completions)
+        * 100.0
+    )
+
+    print(
+        f"Full completion rate: "
+        f"{completion_rate:.2f}%"
+    )
+
+    print(
+        f"Evaluation epsilon  : "
+        f"{agent.epsilon:.4f}"
+    )
+
+    print("=" * 72)
+
+    env.close()
+
+    raise SystemExit(0)
+
+# ==========================================================
+# HEADER
+# ==========================================================
+
+print()
+
+print(
+    "=" * 72
+)
+
+print(
+    "MULTI-AGV DQN TRAINING"
+)
+
+print(
+    "=" * 72
+)
+
+print(
+    f"Episodes      : {EPISODES}"
+)
+
+print(
+    "Start episode : 1"
+)
+
+print(
+    f"Max steps     : {MAX_STEPS}"
+)
+
+print(
+    f"AGVs          : {NUM_AGVS}"
+)
+
+print(
+    f"State size    : {STATE_SIZE}"
+)
+
+print(
+    f"Action size   : {ACTION_SIZE}"
+)
+
+print(
+    f"Device        : {agent.device}"
+)
+
+print(
+    f"Learning rate : {LEARNING_RATE}"
+)
+
+print(
+    f"Gamma         : {GAMMA}"
+)
+
+print(
+    f"Tau           : {TAU}"
+)
+
+print(
+    f"Replay        : {REPLAY_CAPACITY}"
+)
+
+print(
+    f"Batch         : {BATCH_SIZE}"
+)
+
+print(
+    f"Epsilon start : {EPSILON_START}"
+)
+
+print(
+    f"Epsilon min   : {EPSILON_MIN}"
+)
+
+print(
+    f"Epsilon decay : {EPSILON_DECAY}"
+)
+
+print(
+    f"Checkpoint    : every "
+    f"{CHECKPOINT_INTERVAL} episodes"
+)
+
+print(
+    "=" * 72
+)
+
+
+# ==========================================================
+# TRAINING LOOP
+# ==========================================================
+
+for episode in range(
+    1,
+    EPISODES + 1,
+):
+
+    # ======================================================
+    # RESET
+    # ======================================================
+
+    reset_result = env.reset()
+
+    if isinstance(
+        reset_result,
+        tuple,
+    ):
+
+        state = reset_result[0]
+
+    else:
+
+        state = reset_result
+
+
+    state = np.asarray(
+        state,
+        dtype=np.float32,
+    )
+
+
+    # ======================================================
+    # VALIDATE INITIAL STATE
+    # ======================================================
+
+    if state.shape != (
+        STATE_SIZE,
+    ):
+
+        raise ValueError(
+            f"Expected state shape "
+            f"({STATE_SIZE},), "
+            f"got {state.shape}."
+        )
+
+
+    # ======================================================
+    # EPISODE VARIABLES
+    # ======================================================
+
+    episode_reward = 0.0
+
+    episode_losses = []
+
+    collision_count = 0
+
+    completed_count = 0
+
+    pickup_count = 0
+
+    steps = 0
+
+    done = False
+
+
+    # ======================================================
+    # EPISODE LOOP
+    # ======================================================
+
+    for step in range(
+        MAX_STEPS
+    ):
+
+        steps = step + 1
+
+
+        # ==================================================
+        # SELECT JOINT ACTION
+        # ==================================================
+        #
+        # Example for 3 AGVs:
+        #
+        # [3, 4, 1]
+        #
+        # AGV 1 -> Up
+        # AGV 2 -> Down
+        # AGV 3 -> Right
+        #
+        # ==================================================
+
+        result = env.step(
+            actions
+        )
+
+
+        # ==================================================
+        # GYMNASIUM API
+        # ==================================================
+
+        if not isinstance(
+            result,
+            tuple,
+        ) or len(result) != 5:
+
+            raise RuntimeError(
+                "Environment step() must return "
+                "(observation, reward, terminated, "
+                "truncated, info)."
+            )
+
+
+        (
+            next_state,
+            reward,
+            terminated,
+            truncated,
+            info,
+        ) = result
+
+
+        # ==================================================
+        # DONE
+        # ==================================================
+
+        done = (
+            bool(terminated)
+            or bool(truncated)
+        )
+
+
+        # ==================================================
+        # NEXT STATE
+        # ==================================================
+
+        next_state = np.asarray(
+            next_state,
+            dtype=np.float32,
+        )
+
+
+        if next_state.shape != (
+            STATE_SIZE,
+        ):
+
+            raise ValueError(
+                f"Expected next state "
+                f"shape ({STATE_SIZE},), "
+                f"got {next_state.shape}."
+            )
+
+
+        # ==================================================
+        # JOINT REPLAY TRANSITION
+        # ==================================================
+        #
+        # IMPORTANT:
+        #
+        # Store ONE transition for all AGVs.
+        #
+        # state
+        # actions
+        # reward
+        # next_state
+        # done
+        #
+        # Do NOT store each AGV separately.
+        #
+        # ==================================================
+
+        agent.remember(
+            state,
+            actions,
+            reward,
+            next_state,
+            done,
+        )
+
+
+        # ==================================================
+        # TRAIN
+        # ==================================================
+
+        loss = agent.train_step()
+
+
+        if loss is not None:
+
+            episode_losses.append(
+                float(loss)
+            )
+
+
+        # ==================================================
+        # REWARD
+        # ==================================================
+
+        episode_reward += float(
+            reward
+        )
+
+
+        # ==================================================
+        # INFO
+        # ==================================================
+
+        if isinstance(
+            info,
+            dict,
+        ):
+
+            collision_count += int(
+                info.get(
+                    "collision_count",
+                    info.get(
+                        "collisions",
+                        0,
+                    ),
+                )
+            )
+
+
+            completed_count += int(
+                info.get(
+                    "completed_tasks",
+                    info.get(
+                        "completed",
+                        0,
+                    ),
+                )
+            )
+
+
+            pickup_count += int(
+                info.get(
+                    "pickup_tasks",
+                    info.get(
+                        "pickups",
+                        0,
+                    ),
+                )
+            )
+
+
+        # ==================================================
+        # UPDATE STATE
+        # ==================================================
+
+        state = next_state
+
+
+        # ==================================================
+        # TERMINATION
+        # ==================================================
+
+        if done:
+
+            break
+
+
+    # ======================================================
+    # EPSILON DECAY
+    # ======================================================
+
+    agent.decay_epsilon()
+
+
+    # ======================================================
+    # AVERAGE LOSS
+    # ======================================================
+
+    if episode_losses:
+
+        average_loss = float(
+            np.mean(
+                episode_losses
+            )
+        )
+
+    else:
+
+        average_loss = 0.0
+
+
+    # ======================================================
+    # HISTORY
+    # ======================================================
+
+    rewards_history.append(
+        episode_reward
+    )
+
+    steps_history.append(
+        steps
+    )
+
+    completion_history.append(
+        completed_count
+    )
+
+    pickup_history.append(
+        pickup_count
+    )
+
+    collision_history.append(
+        collision_count
+    )
+
+    loss_history.append(
+        average_loss
+    )
+
+
+    # ======================================================
+    # PROGRESS
+    # ======================================================
+
+    if (
+        episode == 1
+        or episode % 10 == 0
+    ):
+
+        print(
+            f"Episode "
+            f"{episode:04d}/{EPISODES:04d} "
+            f"| Reward={episode_reward:.2f} "
+            f"| Steps={steps} "
+            f"| Pickups={pickup_count} "
+            f"| Completed={completed_count} "
+            f"| Collision={collision_count} "
+            f"| Loss={average_loss:.5f} "
+            f"| Epsilon={agent.epsilon:.4f}"
+        )
+
+
+    # ======================================================
+    # CHECKPOINT
+    # ======================================================
+
+    if (
+        CHECKPOINT_INTERVAL > 0
+        and episode % CHECKPOINT_INTERVAL == 0
+    ):
+
+        checkpoint_path = os.path.join(
+            CHECKPOINT_DIR,
+            f"dqn_checkpoint_ep_{episode:05d}.pt",
+        )
+
+
+        agent.save(
+            checkpoint_path
+        )
+
+
+        print(
+            f"CHECKPOINT SAVED: "
+            f"{checkpoint_path}"
+        )
+
+
+# ==========================================================
+# FINAL MODEL
+# ==========================================================
+
+final_model_path = os.path.join(
+    MODEL_DIR,
+    "dqn_model.pt",
+)
+
+
+agent.save(
+    final_model_path
+)
+
+
+# ==========================================================
+# FINAL SUMMARY
+# ==========================================================
+
+print()
+
+print(
+    "=" * 72
+)
+
+print(
+    "FINAL TRAINING SUMMARY"
+)
+
+print(
+    "=" * 72
+)
+
+print(
+    f"Episodes completed : {EPISODES}"
+)
+
+print(
+    f"Best reward        : "
+    f"{max(rewards_history):.2f}"
+)
+
+print(
+    f"Average reward     : "
+    f"{np.mean(rewards_history):.2f}"
+)
+
+print(
+    f"Average steps      : "
+    f"{np.mean(steps_history):.2f}"
+)
+
+print(
+    f"Total pickups      : "
+    f"{sum(pickup_history)}"
+)
+
+print(
+    f"Total completions  : "
+    f"{sum(completion_history)}"
+)
+
+print(
+    f"Total collisions   : "
+    f"{sum(collision_history)}"
+)
+
+print(
+    f"Average loss       : "
+    f"{np.mean(loss_history):.5f}"
+)
+
+print(
+    f"Final epsilon      : "
+    f"{agent.epsilon:.4f}"
+)
+
+print()
+
+print(
+    f"MODEL SAVED: "
+    f"{final_model_path}"
+)
+
+print(
+    "=" * 72
+)
+
+
+# ==========================================================
+# CLEANUP
+# ==========================================================
+
+env.close()
+
+if __name__ == "__main__":
+   pass
+
+
