@@ -1,0 +1,11 @@
+experiment,evidence,status
+DQN 5-seed reliability,"5 seeds x 100 episodes; 100% completion; 0 collisions",COMPLETED
+DQN + hybrid controller,"100 episodes; 3/3 completion; 77.12 steps; 1082.63 reward; 0 collisions",COMPLETED
+Thermal emergency,"Temperature 4.356 -> 22.534 C; dynamic risk 0.1068 -> 0.6319",COMPLETED
+Risk-aware assignment,"Critical task assigned differently under risk-aware policy",COMPLETED
+Rescue intervention,"Rescue activation at step 8 and safe-destination arrival at step 17; Rescue ON/OFF average overall episode exposure both 90; ON reward 1034.062 vs OFF 1009.062",COMPLETED
+Thermal exposure,"Exposure measured while task is PICKED_UP",COMPLETED
+RSET operational assignment,"RSET included in canonical priority score and affects actual task assignment",COMPLETED
+Product spoilage/degradation,"First-order product thermal response and quality degradation simulated during PICKED_UP exposure",COMPLETED
+DERPG ablation,"6 seeds; DERPG ON 80 steps/1010.982 reward vs OFF 79 steps/974.726 reward; both 3/3 completion and 0 collisions",COMPLETED
+4/5-AGV DQN performance,"4-AGV: 100 episodes; 4/4 completion; 100%; 0 collisions. 5-AGV: 100 episodes; 5/5 completion; 100%; 0 collisions",COMPLETED

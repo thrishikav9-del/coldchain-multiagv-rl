@@ -1,0 +1,9 @@
+Metric,Value,Status,Limitation
+initial_quality_remaining,1.0,COMPLETED,Normalized simulation value
+final_quality_remaining,0.9422340395522163,COMPLETED,Normalized simulation value after controlled PICKED_UP exposure
+quality_loss,0.057765960447783704,COMPLETED,"Simulation metric, not food-science validation"
+initial_thermal_damage,0.0,COMPLETED,Simulation damage state
+final_thermal_damage,0.05950158564351781,COMPLETED,Simulation damage state after controlled exposure
+picked_up_steps,20,COMPLETED,Controlled in-memory exposure
+degradation_occurred,True,COMPLETED,First-order thermal model
+spoilage_threshold_reached,False,COMPLETED,Simulation threshold of 0.20

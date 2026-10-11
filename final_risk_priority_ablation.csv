@@ -1,0 +1,3 @@
+﻿configuration,task_1,task_2,task_3,critical_task_risk,critical_task_urgency,critical_task_rset
+Reactive / risk-agnostic,AGV 1,AGV 2,AGV 3,0.95,0.95,5.0
+Risk-aware / proactive,AGV 2,AGV 3,AGV 1,0.95,0.95,5.0

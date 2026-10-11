@@ -1,0 +1,4 @@
+configuration,state_size,risk_aware_assignment,recovery_controller,completion_rate,average_completions,average_collisions,average_steps,average_reward
+18-state pure DQN,18,False,False,0.0,0.0,0.0,300.0,-1193.5
+24-state pure DQN,24,True,False,0.0,0.0,0.0,300.0,-124.97
+24-state risk-aware + hybrid controller,24,True,True,100.0,3.0,0.0,101.47,756.36

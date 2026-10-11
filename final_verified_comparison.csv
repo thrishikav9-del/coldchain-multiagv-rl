@@ -1,0 +1,3 @@
+﻿"configuration","risk_aware_assignment","hybrid_controller","episodes","average_reward","average_steps","average_pickups","average_completions","completion_rate","average_collisions"
+"Pure DQN","True","False","20","255.74","300","3","1.61","53.7","0"
+"DQN + Risk-Aware Collision-Aware Hybrid Controller","True","True","100","1082.63","77.12","3","3","100","0"

@@ -1,0 +1,1 @@
+metric,mean,std,min,max\naverage_reward,1075.51,132.9789626219125,837.63,1134.98\naverage_steps,77.0,2.23606797749979,73.0,78.0\naverage_completed,3.0,0.0,3.0,3.0\ncompletion_rate,100.0,0.0,100.0,100.0\naverage_collisions,0.0,0.0,0.0,0.0

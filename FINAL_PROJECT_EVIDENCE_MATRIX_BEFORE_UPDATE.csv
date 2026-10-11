@@ -1,0 +1,11 @@
+Area,Status,Evidence,Result,Claim limitation
+DQN 5-seed reliability,COMPLETED,final_dqn_5seed_evaluation.csv,5 seeds x 100 episodes; 100% completion; 0 collisions,Performance uses the validated hybrid operational controller
+DQN + hybrid controller,COMPLETED,final_verified_comparison.csv,100 episodes; 3/3 completion; 77.12 steps; 1082.63 reward; 0 collisions,Not pure DQN movement control
+Thermal emergency,COMPLETED,final_cold_chain_scenarios.csv,Temperature 4.356 -> 22.534 C; dynamic risk 0.1068 -> 0.6319,Controlled thermal-emergency scenario
+Risk-aware assignment,COMPLETED,final_risk_priority_ablation.csv,Critical task assigned differently under risk-aware policy,Controlled heterogeneous-risk experiment
+Rescue intervention,PARTIAL,final_rescue_intervention_summary.csv,Activation step 8; safe destination reached step 17,"No reduction in exposure, max temperature, duration, or exceeded tasks"
+Thermal exposure,COMPLETED,multi_agv_env.py,Exposure measured while task is PICKED_UP,Exposure is not spoilage
+RSET operational assignment,PARTIAL,environment implementation,RSET stored and used in prioritization,Does not directly drive actual task assignment
+Product spoilage/degradation,PENDING,No validated artifact,Not physically modeled,Do not claim spoilage prevention
+DERPG ablation,PARTIAL,Implementation + prior validated comparison,Propagation improved completion time in tested scenario,Dedicated saved ON/OFF artifact is missing
+4/5-AGV DQN performance,PENDING,3/4/5 AGV operational smoke tests,Environment supports 3-5 AGVs,Separate trained 4/5-AGV checkpoints required
